@@ -17,7 +17,7 @@ src/
   FoaieDeParcurs.Core    - pure domain logic: entities, TripLedger (route derivation,
                             verification, document assembly). No SQLite/Android/PDF dependency.
   FoaieDeParcurs.Data    - EF Core (Sqlite) persistence for the Core entities
-  FoaieDeParcurs.Pdf     - QuestPDF rendering of the Foaie de Parcurs document
+  FoaieDeParcurs.Pdf     - PdfSharp rendering of the Foaie de Parcurs document
 tests/
   FoaieDeParcurs.Tests   - xUnit tests for Core, Data, and Pdf
 ```
@@ -59,8 +59,56 @@ rest of the SingleProject MAUI structure is already platform-agnostic.
    dotnet build src/FoaieDeParcurs.App/FoaieDeParcurs.App.csproj -f net10.0-android -t:Run -p:AndroidDeviceType=device
    ```
    or `adb install` a built APK directly from `src/FoaieDeParcurs.App/bin/Debug/net10.0-android/`.
-3. For a signed release build, see [`PLAY_STORE.md`](PLAY_STORE.md) for the keystore/signing
-   process — a release keystore is required and is **never** committed to this repo.
+3. For a signed release build, see [Release signing](#release-signing) below.
+
+## Release signing
+
+Release builds (APK and AAB) must be signed with a release keystore. **Never commit the keystore
+or its passwords** — `/keystore/` is gitignored in its entirety for exactly this reason.
+
+### 1. Generate the keystore (one-time)
+
+```
+keytool -genkeypair -v -storetype PKCS12 \
+  -keystore keystore/foaiedeparcurs-release.keystore \
+  -alias foaiedeparcurs \
+  -keyalg RSA -keysize 2048 -validity 10000
+```
+
+`keytool` defaults to a PKCS12 keystore, and PKCS12 requires the store password and the key
+password to be identical — it silently ignores a separately-specified `-keypass` and reuses the
+store password for both, so there is really only one secret to keep track of. Write the password
+down somewhere safe (a password manager, not another repo) immediately after generating it —
+`keystore/RELEASE_CREDENTIALS_DO_NOT_COMMIT.txt` is a reasonable local scratch copy, but it is
+gitignored and **not a backup**.
+
+**Losing this keystore (and its password) means losing the ability to ever update the app under
+the same signing identity again** — you would have to publish it as a brand-new app. Back it up
+somewhere durable and private.
+
+### 2. Build the signed APK / AAB
+
+```
+dotnet build src/FoaieDeParcurs.App/FoaieDeParcurs.App.csproj \
+  -f net10.0-android -c Release \
+  -t:SignAndroidPackage \
+  -p:AndroidPackageFormat=apk \
+  -p:AndroidSigningKeyStore=<path-to-keystore> \
+  -p:AndroidSigningKeyAlias=foaiedeparcurs \
+  -p:AndroidSigningStorePass=<password> \
+  -p:AndroidSigningKeyPass=<password>
+```
+
+Swap `-p:AndroidPackageFormat=aab` to produce an Android App Bundle instead (required for Play
+Store uploads — see [`PLAY_STORE.md`](PLAY_STORE.md)). The signed output lands under
+`src/FoaieDeParcurs.App/bin/Release/net10.0-android/` as
+`com.mzivojin.foaiedeparcurs-Signed.apk` / `.aab`.
+
+### 3. Install and verify
+
+```
+adb install -r src/FoaieDeParcurs.App/bin/Release/net10.0-android/com.mzivojin.foaiedeparcurs-Signed.apk
+```
 
 ## Configuration
 

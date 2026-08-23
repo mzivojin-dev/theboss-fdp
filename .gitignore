@@ -17,6 +17,10 @@ local.properties
 *.apk
 *.aab
 
+# Release signing — the whole directory, not just the keystore file, since it also holds the
+# local credentials note. NEVER commit this. See README "Release signing".
+/keystore/
+
 # Test results
 TestResults/
 *.trx
