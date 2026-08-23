@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FoaieDeParcurs.App.Services;
 using FoaieDeParcurs.Core.Domain;
 using FoaieDeParcurs.Core.Entities;
 using FoaieDeParcurs.Core.Repositories;
-using FoaieDeParcurs.Pdf;
 using Microsoft.Maui.ApplicationModel.Communication;
 using Microsoft.Maui.Devices.Sensors;
 
@@ -22,7 +22,8 @@ public sealed partial class FillUpCaptureViewModel(
     IGpsRawPointRepository gpsRawPointRepository,
     IRouteSegmentRepository routeSegmentRepository,
     IVehicleProfileRepository vehicleProfileRepository,
-    ILocationNamer locationNamer)
+    ILocationNamer locationNamer,
+    IFoaieDeParcursDocumentService documentService)
     : ObservableObject, IQueryAttributable
 {
     public const string FillUpIdQueryKey = "fillUpId";
@@ -423,9 +424,10 @@ public sealed partial class FillUpCaptureViewModel(
         IsBusy = true;
         try
         {
-            var path = await BuildPdfAsync();
+            var path = await documentService.BuildPdfAsync(_savedFillUpId!.Value);
             if (path is null)
             {
+                StatusMessage = "This fill-up no longer exists.";
                 return;
             }
 
@@ -436,28 +438,6 @@ public sealed partial class FillUpCaptureViewModel(
         {
             IsBusy = false;
         }
-    }
-
-    private async Task<string?> BuildPdfAsync()
-    {
-        var id = _savedFillUpId!.Value;
-        var fillUp = await fillUpRepository.GetByIdAsync(id);
-        if (fillUp is null)
-        {
-            StatusMessage = "This fill-up no longer exists.";
-            return null;
-        }
-
-        var segments = await routeSegmentRepository.GetForFillUpAsync(id);
-        var profile = await vehicleProfileRepository.GetOrCreateAsync();
-        var document = FoaieDeParcursDocumentBuilder.Build(profile, fillUp, _previousFillUp, segments);
-
-        var pdfDirectory = Path.Combine(FileSystem.AppDataDirectory, "pdfs");
-        Directory.CreateDirectory(pdfDirectory);
-        var path = Path.Combine(pdfDirectory, FoaieDeParcursPdfRenderer.BuildFileName(document.IssueDate));
-        await File.WriteAllBytesAsync(path, FoaieDeParcursPdfRenderer.Render(document));
-
-        return path;
     }
 
     /// <summary>
@@ -500,9 +480,10 @@ public sealed partial class FillUpCaptureViewModel(
                 return;
             }
 
-            var path = await BuildPdfAsync();
+            var path = await documentService.BuildPdfAsync(id);
             if (path is null)
             {
+                StatusMessage = "This fill-up no longer exists.";
                 return;
             }
 
@@ -510,8 +491,8 @@ public sealed partial class FillUpCaptureViewModel(
 
             var profile = await vehicleProfileRepository.GetOrCreateAsync();
             var document = FoaieDeParcursDocumentBuilder.Build(profile, reloadedFillUp, _previousFillUp, reloadedSegments);
-            var subject = ApplyTemplate(profile.EmailSubjectTemplate, document);
-            var body = ApplyTemplate(profile.EmailBodyTemplate, document);
+            var subject = documentService.ApplyTemplate(profile.EmailSubjectTemplate, document);
+            var body = documentService.ApplyTemplate(profile.EmailBodyTemplate, document);
 
             var message = new EmailMessage
             {
@@ -545,9 +526,4 @@ public sealed partial class FillUpCaptureViewModel(
             IsBusy = false;
         }
     }
-
-    private static string ApplyTemplate(string template, FoaieDeParcursDocument document) => template
-        .Replace("{PeriodStart}", document.PeriodStart.ToString("dd.MM.yyyy"))
-        .Replace("{PeriodEnd}", document.PeriodEnd.ToString("dd.MM.yyyy"))
-        .Replace("{DriverName}", document.DriverName);
 }

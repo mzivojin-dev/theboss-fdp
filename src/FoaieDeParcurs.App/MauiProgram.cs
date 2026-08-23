@@ -1,8 +1,10 @@
 using FoaieDeParcurs.App.Platforms.Android;
 using FoaieDeParcurs.App.Services;
+using FoaieDeParcurs.App.ViewModels.Dashboard;
 using FoaieDeParcurs.App.ViewModels.FillUps;
 using FoaieDeParcurs.App.ViewModels.KnownLocations;
 using FoaieDeParcurs.App.ViewModels.Settings;
+using FoaieDeParcurs.App.Views.Dashboard;
 using FoaieDeParcurs.App.Views.FillUps;
 using FoaieDeParcurs.App.Views.KnownLocations;
 using FoaieDeParcurs.App.Views.Settings;
@@ -41,6 +43,7 @@ public static class MauiProgram
 		builder.Services.AddScoped<IRouteSegmentRepository, RouteSegmentRepository>();
 		builder.Services.AddSingleton<ILocationNamer, RomanianCityGazetteer>();
 		builder.Services.AddSingleton<ITrackingService, AndroidTrackingService>();
+		builder.Services.AddScoped<IFoaieDeParcursDocumentService, FoaieDeParcursDocumentService>();
 
 		builder.Services.AddTransient<KnownLocationListViewModel>();
 		builder.Services.AddTransient<KnownLocationListPage>();
@@ -50,8 +53,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<SettingsViewModel>();
 		builder.Services.AddTransient<SettingsPage>();
 
-		builder.Services.AddTransient<FillUpListViewModel>();
-		builder.Services.AddTransient<FillUpListPage>();
+		builder.Services.AddTransient<DashboardViewModel>();
+		builder.Services.AddTransient<DashboardPage>();
 		builder.Services.AddTransient<FillUpCaptureViewModel>();
 		builder.Services.AddTransient<FillUpCapturePage>();
 

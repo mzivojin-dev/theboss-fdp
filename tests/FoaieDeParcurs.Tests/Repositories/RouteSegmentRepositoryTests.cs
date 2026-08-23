@@ -62,4 +62,33 @@ public sealed class RouteSegmentRepositoryTests : IDisposable
         Assert.Equal("Brasov", segments[1].StartLocationName);
         Assert.DoesNotContain(segments, s => s.EndFillUpId == other.Id);
     }
+
+    [Fact]
+    public async Task GetAllAsync_ReturnsEverySegmentAcrossEveryFillUp()
+    {
+        var fillUpRepository = new FillUpRepository(AppDbContextFactory.Create(_dbPath));
+        await fillUpRepository.AddWithSegmentsAsync(
+            new FillUp { Timestamp = DateTimeOffset.UtcNow, LitersFilled = 40, AmountPaid = 300, CreatedAt = DateTimeOffset.UtcNow },
+            [
+                new RouteSegment
+                {
+                    StartLocationName = "Depot X", StartLatitude = 1, StartLongitude = 1, StartTimestamp = DateTimeOffset.UtcNow.AddHours(-1),
+                    EndLocationName = "Brasov", EndLatitude = 2, EndLongitude = 2, EndTimestamp = DateTimeOffset.UtcNow, DistanceKm = 10
+                }
+            ]);
+        await fillUpRepository.AddWithSegmentsAsync(
+            new FillUp { Timestamp = DateTimeOffset.UtcNow.AddDays(1), LitersFilled = 30, AmountPaid = 200, CreatedAt = DateTimeOffset.UtcNow },
+            [
+                new RouteSegment
+                {
+                    StartLocationName = "Brasov", StartLatitude = 2, StartLongitude = 2, StartTimestamp = DateTimeOffset.UtcNow.AddDays(1).AddHours(-1),
+                    EndLocationName = "Cluj-Napoca", EndLatitude = 3, EndLongitude = 3, EndTimestamp = DateTimeOffset.UtcNow.AddDays(1), DistanceKm = 20
+                }
+            ]);
+
+        var repository = new RouteSegmentRepository(AppDbContextFactory.Create(_dbPath));
+        var all = await repository.GetAllAsync();
+
+        Assert.Equal(2, all.Count);
+    }
 }

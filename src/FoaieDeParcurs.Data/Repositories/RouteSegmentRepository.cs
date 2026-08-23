@@ -12,4 +12,7 @@ public sealed class RouteSegmentRepository(AppDbContext db) : IRouteSegmentRepos
             .Where(s => s.EndFillUpId == fillUpId)
             .OrderBy(s => s.StartTimestamp)
             .ToListAsync();
+
+    public async Task<List<RouteSegment>> GetAllAsync() =>
+        await db.RouteSegments.AsNoTracking().OrderBy(s => s.StartTimestamp).ToListAsync();
 }

@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FoaieDeParcurs.App.Views.Dashboard.DashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:FoaieDeParcurs.App.ViewModels.Dashboard"
+    xmlns:entities="clr-namespace:FoaieDeParcurs.Core.Entities;assembly=FoaieDeParcurs.Core"
+    x:DataType="vm:DashboardViewModel"
+    Title="Foaie de Parcurs">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="+ New Fill-Up" Command="{Binding AddCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid>
+        <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
+            <ScrollView>
+                <VerticalStackLayout Padding="16" Spacing="16">
+
+                    <!--  Month stat cards  -->
+                    <Label Text="{Binding MonthLabel}" FontAttributes="Bold" FontSize="18" />
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <Border
+                            Grid.Column="0"
+                            Stroke="Transparent"
+                            BackgroundColor="{StaticResource Primary}"
+                            StrokeShape="RoundRectangle 12">
+                            <VerticalStackLayout Padding="12" Spacing="2">
+                                <Label Text="{Binding MonthFillUpCount}" TextColor="White" FontSize="24" FontAttributes="Bold" />
+                                <Label Text="fill-ups" TextColor="White" FontSize="12" Opacity="0.85" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border
+                            Grid.Column="1"
+                            Stroke="Transparent"
+                            BackgroundColor="{StaticResource Secondary}"
+                            StrokeShape="RoundRectangle 12">
+                            <VerticalStackLayout Padding="12" Spacing="2">
+                                <Label FontSize="24" FontAttributes="Bold" TextColor="{StaticResource PrimaryDarkText}">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="{}{0:0}">
+                                            <Binding Path="MonthTotalKm" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                                <Label Text="km driven" FontSize="12" TextColor="{StaticResource PrimaryDarkText}" Opacity="0.85" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border
+                            Grid.Column="2"
+                            Stroke="{StaticResource Gray300}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12">
+                            <VerticalStackLayout Padding="12" Spacing="2">
+                                <Label FontSize="20" FontAttributes="Bold">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="{}{0:0.00} {1}">
+                                            <Binding Path="MonthTotalPaid" />
+                                            <Binding Path="Currency" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                                <Label Text="spent" FontSize="12" TextColor="Gray" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!--  Export  -->
+                    <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 12">
+                        <VerticalStackLayout Padding="14" Spacing="10">
+                            <Label Text="Export" FontAttributes="Bold" />
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                <Button
+                                    Grid.Column="0"
+                                    Text="This month"
+                                    BackgroundColor="{StaticResource Primary}"
+                                    TextColor="White"
+                                    Command="{Binding ExportThisMonthCommand}" />
+                                <Button Grid.Column="1" Command="{Binding ExportUnsentCommand}">
+                                    <Button.Text>
+                                        <MultiBinding StringFormat="{}Unsent ({0})">
+                                            <Binding Path="UnsentCount" />
+                                        </MultiBinding>
+                                    </Button.Text>
+                                </Button>
+                            </Grid>
+                            <Label
+                                Text="{Binding StatusMessage}"
+                                FontSize="13"
+                                TextColor="Gray"
+                                IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+                            <ActivityIndicator IsRunning="{Binding IsExporting}" IsVisible="{Binding IsExporting}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Recent fill-ups  -->
+                    <Label Text="Recent fill-ups" FontAttributes="Bold" FontSize="16" Margin="0,8,0,0" />
+                    <CollectionView ItemsSource="{Binding RecentFillUps}" SelectionMode="None">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="entities:FillUp">
+                                <SwipeView>
+                                    <SwipeView.RightItems>
+                                        <SwipeItems>
+                                            <SwipeItem
+                                                Text="Delete"
+                                                BackgroundColor="Red"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DashboardViewModel}}, Path=DeleteCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </SwipeItems>
+                                    </SwipeView.RightItems>
+
+                                    <Border Stroke="{StaticResource Gray300}" StrokeThickness="1" StrokeShape="RoundRectangle 10">
+                                        <Grid Padding="12,10" ColumnDefinitions="Auto,*">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DashboardViewModel}}, Path=ViewCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+
+                                            <Label
+                                                Grid.Column="0"
+                                                Text="{Binding IsVerified, Converter={StaticResource VerifiedStatusIconConverter}}"
+                                                FontSize="18"
+                                                VerticalOptions="Center"
+                                                Margin="0,0,10,0" />
+
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                <Label FontAttributes="Bold" FontSize="15">
+                                                    <Label.Text>
+                                                        <MultiBinding StringFormat="{}{0:g}">
+                                                            <Binding Path="Timestamp" />
+                                                        </MultiBinding>
+                                                    </Label.Text>
+                                                </Label>
+                                                <Label FontSize="12" TextColor="Gray">
+                                                    <Label.Text>
+                                                        <MultiBinding StringFormat="{}{0:0.0} L &#183; {1:0.00} {2}">
+                                                            <Binding Path="LitersFilled" />
+                                                            <Binding Path="AmountPaid" />
+                                                            <Binding Path="Currency" />
+                                                        </MultiBinding>
+                                                    </Label.Text>
+                                                </Label>
+                                                <Label
+                                                    Text="{Binding StationName}"
+                                                    FontSize="12"
+                                                    TextColor="Gray"
+                                                    IsVisible="{Binding StationName, Converter={StaticResource StringNotEmptyConverter}}" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Border>
+                                </SwipeView>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <VerticalStackLayout
+            IsVisible="{Binding IsEmpty}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Spacing="8"
+            Padding="32">
+            <Label Text="No fill-ups yet" FontSize="18" HorizontalOptions="Center" />
+            <Label
+                Text="Tap + New Fill-Up after your next stop at the pump."
+                FontSize="14"
+                TextColor="Gray"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+    </Grid>
+
+</ContentPage>
