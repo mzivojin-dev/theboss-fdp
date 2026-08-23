@@ -13,7 +13,7 @@ public static class FoaieDeParcursDocumentBuilder
     {
         var rows = segments
             .OrderBy(s => s.StartTimestamp)
-            .Select(s => new FoaieDeParcursSegmentRow(s.StartTimestamp, s.StartLocationName, s.EndLocationName, s.DistanceKm, s.Purpose))
+            .Select(s => new FoaieDeParcursSegmentRow(s.StartTimestamp, s.StartLocationName, s.EndTimestamp, s.EndLocationName, s.DistanceKm, s.Purpose))
             .ToList();
 
         return new FoaieDeParcursDocument(

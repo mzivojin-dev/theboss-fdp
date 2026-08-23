@@ -1,12 +1,16 @@
 namespace FoaieDeParcurs.Core.Domain;
 
-/// <summary>One printed row in the Foaie de Parcurs route table.</summary>
+/// <summary>
+/// One printed row in the Foaie de Parcurs route table — matches the official form's
+/// Plecare (Locul/Ora) and Sosire (Locul/Ora) column pairs.
+/// </summary>
 public sealed record FoaieDeParcursSegmentRow(
-    DateTimeOffset Date,
-    string From,
-    string To,
+    DateTimeOffset DepartureTimestamp,
+    string DepartureLocation,
+    DateTimeOffset ArrivalTimestamp,
+    string ArrivalLocation,
     double DistanceKm,
-    string Purpose);
+    string Observations);
 
 /// <summary>
 /// Everything the PDF renderer needs to lay out one Foaie de Parcurs — assembled by

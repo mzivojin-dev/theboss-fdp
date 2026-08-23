@@ -73,10 +73,10 @@ public sealed class FoaieDeParcursDocumentBuilderTests
         var document = FoaieDeParcursDocumentBuilder.Build(Profile(), fillUp, previousFillUp: null, segments);
 
         Assert.Equal(2, document.Segments.Count);
-        Assert.Equal("Depot X", document.Segments[0].From);
-        Assert.Equal("Brasov", document.Segments[0].To);
-        Assert.Equal("Brasov", document.Segments[1].From);
-        Assert.Equal("Cluj-Napoca", document.Segments[1].To);
+        Assert.Equal("Depot X", document.Segments[0].DepartureLocation);
+        Assert.Equal("Brasov", document.Segments[0].ArrivalLocation);
+        Assert.Equal("Brasov", document.Segments[1].DepartureLocation);
+        Assert.Equal("Cluj-Napoca", document.Segments[1].ArrivalLocation);
         Assert.Equal(50, document.TotalDistanceKm);
     }
 
