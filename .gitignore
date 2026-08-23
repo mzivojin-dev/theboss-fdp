@@ -1,0 +1,29 @@
+# .NET / MAUI / Android build artifacts
+bin/
+obj/
+*.user
+*.userosscache
+*.suo
+
+# Visual Studio / Rider
+.vs/
+.vscode/
+*.DotSettings.user
+
+# Android
+*.keystore
+*.jks
+local.properties
+*.apk
+*.aab
+
+# Test results
+TestResults/
+*.trx
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# App-local scratch (spec/ticket drafting)
+.spec-draft.md

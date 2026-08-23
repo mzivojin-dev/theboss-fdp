@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FoaieDeParcurs.App/FoaieDeParcurs.App.csproj" />
+    <Project Path="src/FoaieDeParcurs.Core/FoaieDeParcurs.Core.csproj" />
+    <Project Path="src/FoaieDeParcurs.Data/FoaieDeParcurs.Data.csproj" />
+    <Project Path="src/FoaieDeParcurs.Pdf/FoaieDeParcurs.Pdf.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FoaieDeParcurs.Tests/FoaieDeParcurs.Tests.csproj" />
+  </Folder>
+</Solution>
