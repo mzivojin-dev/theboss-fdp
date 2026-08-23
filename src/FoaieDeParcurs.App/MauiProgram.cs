@@ -1,5 +1,7 @@
 using FoaieDeParcurs.App.ViewModels.KnownLocations;
+using FoaieDeParcurs.App.ViewModels.Settings;
 using FoaieDeParcurs.App.Views.KnownLocations;
+using FoaieDeParcurs.App.Views.Settings;
 using FoaieDeParcurs.Core.Repositories;
 using FoaieDeParcurs.Data;
 using FoaieDeParcurs.Data.Repositories;
@@ -28,11 +30,15 @@ public static class MauiProgram
 			options.UseSqlite($"Data Source={databasePath}"));
 
 		builder.Services.AddScoped<IKnownLocationRepository, KnownLocationRepository>();
+		builder.Services.AddScoped<IVehicleProfileRepository, VehicleProfileRepository>();
 
 		builder.Services.AddTransient<KnownLocationListViewModel>();
 		builder.Services.AddTransient<KnownLocationListPage>();
 		builder.Services.AddTransient<KnownLocationEditViewModel>();
 		builder.Services.AddTransient<KnownLocationEditPage>();
+
+		builder.Services.AddTransient<SettingsViewModel>();
+		builder.Services.AddTransient<SettingsPage>();
 
 #if DEBUG
 		builder.Logging.AddDebug();

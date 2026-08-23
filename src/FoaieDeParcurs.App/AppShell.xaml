@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:FoaieDeParcurs.App"
     xmlns:locations="clr-namespace:FoaieDeParcurs.App.Views.KnownLocations"
+    xmlns:settings="clr-namespace:FoaieDeParcurs.App.Views.Settings"
     Title="Foaie de Parcurs">
 
     <TabBar>
@@ -17,6 +18,11 @@
             Title="Locations"
             ContentTemplate="{DataTemplate locations:KnownLocationListPage}"
             Route="KnownLocations" />
+
+        <ShellContent
+            Title="Settings"
+            ContentTemplate="{DataTemplate settings:SettingsPage}"
+            Route="Settings" />
     </TabBar>
 
 </Shell>

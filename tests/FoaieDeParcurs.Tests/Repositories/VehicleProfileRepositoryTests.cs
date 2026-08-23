@@ -1,0 +1,93 @@
+using FoaieDeParcurs.Core.Entities;
+using FoaieDeParcurs.Data;
+using FoaieDeParcurs.Data.Repositories;
+using Microsoft.Data.Sqlite;
+
+namespace FoaieDeParcurs.Tests.Repositories;
+
+public sealed class VehicleProfileRepositoryTests : IDisposable
+{
+    private readonly string _dbPath;
+
+    public VehicleProfileRepositoryTests()
+    {
+        _dbPath = Path.Combine(Path.GetTempPath(), $"foaiedeparcurs-test-{Guid.NewGuid():N}.db3");
+        using var db = AppDbContextFactory.Create(_dbPath);
+        db.InitializeAsync().GetAwaiter().GetResult();
+    }
+
+    public void Dispose()
+    {
+        SqliteConnection.ClearAllPools();
+        if (File.Exists(_dbPath))
+        {
+            File.Delete(_dbPath);
+        }
+    }
+
+    private VehicleProfileRepository CreateRepository() =>
+        new(AppDbContextFactory.Create(_dbPath));
+
+    [Fact]
+    public async Task GetOrCreateAsync_CreatesADefaultProfile_WhenNoneExistsYet()
+    {
+        var repository = CreateRepository();
+
+        var profile = await repository.GetOrCreateAsync();
+
+        Assert.True(profile.Id > 0);
+        Assert.Equal(ReportingCadence.PerFillUp, profile.ReportingCadence);
+    }
+
+    [Fact]
+    public async Task GetOrCreateAsync_ReturnsTheSameProfile_OnSubsequentCalls()
+    {
+        var firstRepository = CreateRepository();
+        var first = await firstRepository.GetOrCreateAsync();
+
+        var secondRepository = CreateRepository();
+        var second = await secondRepository.GetOrCreateAsync();
+
+        Assert.Equal(first.Id, second.Id);
+    }
+
+    [Fact]
+    public async Task SaveAsync_RoundTripsEveryField()
+    {
+        var setupRepository = CreateRepository();
+        var profile = await setupRepository.GetOrCreateAsync();
+
+        profile.CompanyName = "Acme SRL";
+        profile.Cui = "RO12345678";
+        profile.DriverName = "Mihai Zivojinovic";
+        profile.VehiclePlate = "B-01-ABC";
+        profile.VehicleMakeModel = "Dacia Duster";
+        profile.VehicleCategory = "M1";
+        profile.FuelType = FuelType.Motorina;
+        profile.FuelConsumptionNormPer100Km = 6.8;
+        profile.GoogleMapsApiKey = "test-key";
+        profile.EmailRecipient = "contabilitate@acme.ro";
+        profile.EmailSubjectTemplate = "Custom subject {PeriodStart}";
+        profile.EmailBodyTemplate = "Custom body";
+        profile.ReportingCadence = ReportingCadence.Monthly;
+
+        await setupRepository.SaveAsync(profile);
+
+        var readRepository = CreateRepository();
+        var reloaded = await readRepository.GetOrCreateAsync();
+
+        Assert.Equal("Acme SRL", reloaded.CompanyName);
+        Assert.Equal("RO12345678", reloaded.Cui);
+        Assert.Equal("Mihai Zivojinovic", reloaded.DriverName);
+        Assert.Equal("B-01-ABC", reloaded.VehiclePlate);
+        Assert.Equal("Dacia Duster", reloaded.VehicleMakeModel);
+        Assert.Equal("M1", reloaded.VehicleCategory);
+        Assert.Equal(FuelType.Motorina, reloaded.FuelType);
+        Assert.Equal(6.8, reloaded.FuelConsumptionNormPer100Km);
+        Assert.Equal("test-key", reloaded.GoogleMapsApiKey);
+        Assert.Equal("contabilitate@acme.ro", reloaded.EmailRecipient);
+        Assert.Equal("Custom subject {PeriodStart}", reloaded.EmailSubjectTemplate);
+        Assert.Equal("Custom body", reloaded.EmailBodyTemplate);
+        Assert.Equal(ReportingCadence.Monthly, reloaded.ReportingCadence);
+    }
+}

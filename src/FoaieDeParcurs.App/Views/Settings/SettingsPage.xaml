@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FoaieDeParcurs.App.Views.Settings.SettingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:FoaieDeParcurs.App.ViewModels.Settings"
+    x:DataType="vm:SettingsViewModel"
+    Title="Settings">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="10">
+
+            <Label Text="Company &amp; driver" FontAttributes="Bold" FontSize="18" Margin="0,0,0,4" />
+            <Label Text="Company name" />
+            <Entry Text="{Binding CompanyName}" />
+            <Label Text="CUI" />
+            <Entry Text="{Binding Cui}" />
+            <Label Text="Driver name" />
+            <Entry Text="{Binding DriverName}" />
+
+            <Label Text="Vehicle" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
+            <Label Text="Plate number" />
+            <Entry Text="{Binding VehiclePlate}" />
+            <Label Text="Make / model" />
+            <Entry Text="{Binding VehicleMakeModel}" />
+            <Label Text="Category (e.g. M1)" />
+            <Entry Text="{Binding VehicleCategory}" />
+            <Label Text="Fuel type" />
+            <Picker ItemsSource="{Binding AvailableFuelTypes}" SelectedItem="{Binding FuelType}" />
+            <Label Text="Declared consumption norm (L/100km)" />
+            <Entry Text="{Binding FuelConsumptionNormPer100Km}" Keyboard="Numeric" />
+
+            <Label Text="Reporting" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
+            <Label Text="Cadence" />
+            <Picker ItemsSource="{Binding AvailableCadences}" SelectedItem="{Binding ReportingCadence}" />
+
+            <Label Text="Email" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
+            <Label Text="Recipient" />
+            <Entry Text="{Binding EmailRecipient}" Keyboard="Email" />
+            <Label Text="Subject template" />
+            <Entry Text="{Binding EmailSubjectTemplate}" />
+            <Label Text="Body template" />
+            <Editor Text="{Binding EmailBodyTemplate}" HeightRequest="100" AutoSize="TextChanges" />
+
+            <Label Text="Maps" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
+            <Label Text="Google Maps SDK API key (optional — leave blank to use the offline city fallback)" FontSize="12" TextColor="Gray" />
+            <Entry Text="{Binding GoogleMapsApiKey}" />
+
+            <Button
+                Text="Save"
+                Margin="0,20,0,0"
+                BackgroundColor="{StaticResource Primary}"
+                TextColor="White"
+                Command="{Binding SaveCommand}" />
+
+            <Label
+                Text="{Binding StatusMessage}"
+                TextColor="Green"
+                HorizontalOptions="Center"
+                IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
