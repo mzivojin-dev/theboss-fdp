@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FoaieDeParcurs.App.Views.KnownLocations.KnownLocationEditPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:FoaieDeParcurs.App.ViewModels.KnownLocations"
+    xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+    x:DataType="vm:KnownLocationEditViewModel"
+    Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <Label Text="Tap the map to set the pin, or search an address below." FontSize="13" TextColor="Gray" />
+
+            <maps:Map
+                x:Name="LocationMap"
+                HeightRequest="260"
+                IsShowingUser="False" />
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Entry
+                    Grid.Column="0"
+                    Placeholder="Search address (e.g. Piata Victoriei, Bucuresti)"
+                    Text="{Binding SearchAddress}" />
+                <Button Grid.Column="1" Text="Search" Command="{Binding SearchAddressCommand}" />
+            </Grid>
+
+            <Label Text="Name" FontAttributes="Bold" />
+            <Entry Placeholder="e.g. Depot X" Text="{Binding Name}" />
+
+            <Label Text="Type" FontAttributes="Bold" />
+            <Picker ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding Type}" />
+
+            <Label Text="Matching radius (meters)" FontAttributes="Bold" />
+            <Entry Text="{Binding RadiusMeters}" Keyboard="Numeric" />
+
+            <Label Text="{Binding StatusMessage}" TextColor="Red" IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,16,0,0">
+                <Button Grid.Column="0" Text="Cancel" Command="{Binding CancelCommand}" />
+                <Button Grid.Column="1" Text="Save" Command="{Binding SaveCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" />
+            </Grid>
+
+            <Button
+                Text="Delete"
+                TextColor="Red"
+                BackgroundColor="Transparent"
+                IsVisible="{Binding IsExistingLocation}"
+                Command="{Binding DeleteCommand}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

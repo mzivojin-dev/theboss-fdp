@@ -1,6 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
+	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
+		<!--
+			Google Maps SDK API key. This placeholder makes map tiles fail to load (a blank/grey
+			grid) rather than crash the app — pin-drop and address search still work without a
+			real key (see README "Configuration"). Replace with your own key from
+			https://console.cloud.google.com/google/maps-apis, or set it in Settings once that
+			screen exists (ticket #4) to override this manifest value at runtime.
+		-->
+		<meta-data android:name="com.google.android.geo.API_KEY" android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE" />
+	</application>
+	<!-- Maps SDK tile fetches and (optional) live reverse geocoding are the only network use in this app. -->
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 </manifest>

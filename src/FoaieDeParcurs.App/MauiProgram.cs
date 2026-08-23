@@ -1,4 +1,8 @@
-﻿using FoaieDeParcurs.Data;
+using FoaieDeParcurs.App.ViewModels.KnownLocations;
+using FoaieDeParcurs.App.Views.KnownLocations;
+using FoaieDeParcurs.Core.Repositories;
+using FoaieDeParcurs.Data;
+using FoaieDeParcurs.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,6 +16,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
+			.UseMauiMaps()
 			.ConfigureFonts(fonts =>
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -21,6 +26,13 @@ public static class MauiProgram
 		var databasePath = Path.Combine(FileSystem.AppDataDirectory, "foaiedeparcurs.db3");
 		builder.Services.AddDbContext<AppDbContext>(options =>
 			options.UseSqlite($"Data Source={databasePath}"));
+
+		builder.Services.AddScoped<IKnownLocationRepository, KnownLocationRepository>();
+
+		builder.Services.AddTransient<KnownLocationListViewModel>();
+		builder.Services.AddTransient<KnownLocationListPage>();
+		builder.Services.AddTransient<KnownLocationEditViewModel>();
+		builder.Services.AddTransient<KnownLocationEditPage>();
 
 #if DEBUG
 		builder.Logging.AddDebug();
