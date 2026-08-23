@@ -90,4 +90,24 @@ public sealed class VehicleProfileRepositoryTests : IDisposable
         Assert.Equal("Custom body", reloaded.EmailBodyTemplate);
         Assert.Equal(ReportingCadence.Monthly, reloaded.ReportingCadence);
     }
+
+    [Fact]
+    public async Task SaveAsync_Succeeds_WhenReusingTheSameRepositoryInstanceAsGetOrCreate()
+    {
+        // Regression test: the app resolves AppDbContext once for the whole session (MAUI never
+        // creates a DI scope per page), so SettingsViewModel's LoadAsync (GetOrCreateAsync) and
+        // SaveAsync run against the SAME DbContext, not fresh ones like CreateRepository() gives
+        // every other test in this file. GetOrCreateAsync tracks the profile it creates on first
+        // launch; SaveAsync built a brand-new VehicleProfile instance for the same Id, which EF
+        // Core rejects with "already tracked" — this was the Settings "Save" crash reported by
+        // the user. See ChangeTrackerExtensions.DetachStaleTrackedInstance.
+        var repository = CreateRepository();
+        var profile = await repository.GetOrCreateAsync();
+
+        await repository.SaveAsync(new VehicleProfile { Id = profile.Id, CompanyName = "First Save" });
+        await repository.SaveAsync(new VehicleProfile { Id = profile.Id, CompanyName = "Second Save" });
+
+        var reloaded = await repository.GetOrCreateAsync();
+        Assert.Equal("Second Save", reloaded.CompanyName);
+    }
 }

@@ -217,6 +217,30 @@ public sealed class FillUpRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task UpdateWithSegmentsAsync_Succeeds_WhenReusingTheSameRepositoryInstanceAsAdd()
+    {
+        // Regression test: the app resolves AppDbContext once for the whole session (MAUI never
+        // creates a DI scope per page), so the Edit Fill-Up flow's initial AddWithSegmentsAsync
+        // and a later UpdateWithSegmentsAsync run against the SAME DbContext, not fresh ones
+        // like CreateRepository() gives every other test in this file. AddWithSegmentsAsync
+        // tracks the fill-up it inserts; UpdateWithSegmentsAsync built a brand-new FillUp
+        // instance for the same Id, which EF Core rejects with "already tracked" — the same
+        // class of unhandled crash as the Settings "Save" bug. See
+        // ChangeTrackerExtensions.DetachStaleTrackedInstance.
+        var repository = CreateRepository();
+        var saved = await repository.AddWithSegmentsAsync(
+            new FillUp { Timestamp = DateTimeOffset.UtcNow, LitersFilled = 40, AmountPaid = 300, CreatedAt = DateTimeOffset.UtcNow },
+            [Segment("Depot X", "Somewhere Wrong")]);
+
+        await repository.UpdateWithSegmentsAsync(
+            new FillUp { Id = saved.Id, Timestamp = saved.Timestamp, LitersFilled = 45, AmountPaid = 300, CreatedAt = saved.CreatedAt },
+            [Segment("Depot X", "Cluj-Napoca")]);
+
+        var reloaded = await repository.GetByIdAsync(saved.Id);
+        Assert.Equal(45, reloaded!.LitersFilled);
+    }
+
+    [Fact]
     public async Task DeleteAsync_OrphansRatherThanDeletes_SegmentsThatStartAtTheDeletedFillUp()
     {
         var repository = CreateRepository();

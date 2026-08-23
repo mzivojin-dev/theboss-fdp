@@ -43,6 +43,7 @@ public sealed class FillUpRepository(AppDbContext db) : IFillUpRepository
     {
         await using var transaction = await db.Database.BeginTransactionAsync();
 
+        db.ChangeTracker.DetachStaleTrackedInstance(fillUp, f => f.Id);
         db.FillUps.Update(fillUp);
         await db.SaveChangesAsync();
 

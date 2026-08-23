@@ -21,6 +21,7 @@ public sealed class KnownLocationRepository(AppDbContext db) : IKnownLocationRep
 
     public async Task UpdateAsync(KnownLocation location)
     {
+        db.ChangeTracker.DetachStaleTrackedInstance(location, l => l.Id);
         db.KnownLocations.Update(location);
         await db.SaveChangesAsync();
     }

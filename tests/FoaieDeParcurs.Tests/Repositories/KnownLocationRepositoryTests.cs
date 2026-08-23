@@ -106,6 +106,42 @@ public sealed class KnownLocationRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task UpdateAsync_PersistsChanges_WhenReusingTheSameRepositoryInstanceAsAdd()
+    {
+        // Regression test: the app resolves AppDbContext once for the whole session (MAUI never
+        // creates a DI scope per page), so a repository's AddAsync and a later UpdateAsync run
+        // against the SAME DbContext, not fresh ones like CreateRepository() gives every other
+        // test in this file. AddAsync tracks the entity it inserts; UpdateAsync used to build a
+        // brand-new instance for the same Id, which EF Core rejects with "already tracked" —
+        // an unhandled crash. See ChangeTrackerExtensions.DetachStaleTrackedInstance.
+        var repository = CreateRepository();
+        var added = await repository.AddAsync(new KnownLocation
+        {
+            Name = "Depot X",
+            Latitude = 44.4268,
+            Longitude = 26.1025,
+            RadiusMeters = 150,
+            Type = KnownLocationType.Work,
+            CreatedAt = DateTimeOffset.UtcNow
+        });
+
+        await repository.UpdateAsync(new KnownLocation
+        {
+            Id = added.Id,
+            Name = "Depot X (renamed)",
+            Latitude = 44.4268,
+            Longitude = 26.1025,
+            RadiusMeters = 200,
+            Type = KnownLocationType.Work,
+            CreatedAt = added.CreatedAt
+        });
+
+        var reloaded = await repository.GetByIdAsync(added.Id);
+        Assert.Equal("Depot X (renamed)", reloaded!.Name);
+        Assert.Equal(200, reloaded.RadiusMeters);
+    }
+
+    [Fact]
     public async Task DeleteAsync_RemovesTheLocation()
     {
         var addRepository = CreateRepository();

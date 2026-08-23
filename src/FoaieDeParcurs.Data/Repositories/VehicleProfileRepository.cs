@@ -22,6 +22,7 @@ public sealed class VehicleProfileRepository(AppDbContext db) : IVehicleProfileR
 
     public async Task SaveAsync(VehicleProfile profile)
     {
+        db.ChangeTracker.DetachStaleTrackedInstance(profile, p => p.Id);
         db.VehicleProfiles.Update(profile);
         await db.SaveChangesAsync();
     }
