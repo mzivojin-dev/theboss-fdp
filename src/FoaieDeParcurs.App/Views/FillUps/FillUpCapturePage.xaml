@@ -99,6 +99,27 @@
                 </CollectionView>
             </VerticalStackLayout>
 
+            <!-- Fill-Up Detail / PDF Preview (spec) — only for a saved fill-up being viewed. -->
+            <VerticalStackLayout IsVisible="{Binding CanEdit, Converter={StaticResource InvertedBoolConverter}}" Spacing="8" Margin="0,20,0,0">
+                <Label Text="Foaie de Parcurs" FontAttributes="Bold" FontSize="18" />
+
+                <Label Text="{Binding IsVerified, Converter={StaticResource VerifiedStatusIconConverter}, StringFormat='{0} Verified'}" />
+                <Label Text="✉️ Email sent" IsVisible="{Binding EmailSent}" TextColor="Green" />
+
+                <Button Text="Re-generate PDF" Command="{Binding GeneratePdfCommand}" />
+                <Button
+                    Text="Verify &amp; Email"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    Command="{Binding VerifyAndEmailCommand}" />
+
+                <Label
+                    Text="{Binding PdfFilePath}"
+                    FontSize="11"
+                    TextColor="Gray"
+                    IsVisible="{Binding PdfFilePath, Converter={StaticResource StringNotEmptyConverter}}" />
+            </VerticalStackLayout>
+
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
         </VerticalStackLayout>

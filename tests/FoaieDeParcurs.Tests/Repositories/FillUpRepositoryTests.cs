@@ -136,6 +136,47 @@ public sealed class FillUpRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task GetPreviousAsync_ReturnsTheClosestEarlierFillUp()
+    {
+        var repository = CreateRepository();
+        var baseTime = DateTimeOffset.UtcNow;
+        await repository.AddWithSegmentsAsync(new FillUp { Timestamp = baseTime.AddDays(-2), LitersFilled = 10, AmountPaid = 50 }, []);
+        var closer = await repository.AddWithSegmentsAsync(new FillUp { Timestamp = baseTime.AddDays(-1), LitersFilled = 20, AmountPaid = 100 }, []);
+
+        var readRepository = CreateRepository();
+        var previous = await readRepository.GetPreviousAsync(baseTime);
+
+        Assert.Equal(closer.Id, previous!.Id);
+    }
+
+    [Fact]
+    public async Task GetPreviousAsync_ReturnsNull_WhenNothingIsEarlier()
+    {
+        var repository = CreateRepository();
+        await repository.AddWithSegmentsAsync(new FillUp { Timestamp = DateTimeOffset.UtcNow, LitersFilled = 10, AmountPaid = 50 }, []);
+
+        var previous = await repository.GetPreviousAsync(DateTimeOffset.UtcNow.AddDays(-1));
+
+        Assert.Null(previous);
+    }
+
+    [Fact]
+    public async Task SetEmailSentAsync_UpdatesOnlyTheEmailSentFlag()
+    {
+        var repository = CreateRepository();
+        var saved = await repository.AddWithSegmentsAsync(
+            new FillUp { Timestamp = DateTimeOffset.UtcNow, LitersFilled = 40, AmountPaid = 300 }, []);
+        Assert.False(saved.EmailSent);
+
+        var updateRepository = CreateRepository();
+        await updateRepository.SetEmailSentAsync(saved.Id, true);
+
+        var readRepository = CreateRepository();
+        var reloaded = await readRepository.GetByIdAsync(saved.Id);
+        Assert.True(reloaded!.EmailSent);
+    }
+
+    [Fact]
     public async Task SetVerifiedAsync_UpdatesOnlyTheVerifiedFlag()
     {
         var repository = CreateRepository();

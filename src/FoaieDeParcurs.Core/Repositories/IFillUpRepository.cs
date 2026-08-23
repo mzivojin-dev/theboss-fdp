@@ -12,6 +12,9 @@ public interface IFillUpRepository
     /// <summary>The most recently saved fill-up, or null if none exist yet.</summary>
     Task<FillUp?> GetMostRecentAsync();
 
+    /// <summary>The fill-up immediately before the given timestamp, or null if it's the first one.</summary>
+    Task<FillUp?> GetPreviousAsync(DateTimeOffset beforeTimestamp);
+
     /// <summary>
     /// Saves the fill-up and its route segments as a single transaction: the fill-up is
     /// inserted first (to obtain its Id), each segment's <see cref="RouteSegment.EndFillUpId"/>
@@ -28,6 +31,9 @@ public interface IFillUpRepository
 
     /// <summary>Sets the fill-up's verified flag — the only place <see cref="FillUp.IsVerified"/> is written.</summary>
     Task SetVerifiedAsync(int id, bool isVerified);
+
+    /// <summary>Best-effort: set once the driver confirms they sent the email (Android can't confirm delivery).</summary>
+    Task SetEmailSentAsync(int id, bool emailSent);
 
     /// <summary>
     /// Deletes the fill-up and the route segments that end at it (its trip). Segments that

@@ -1,0 +1,87 @@
+using FoaieDeParcurs.Core.Domain;
+using FoaieDeParcurs.Pdf;
+using UglyToad.PdfPig;
+
+namespace FoaieDeParcurs.Tests.Pdf;
+
+/// <summary>
+/// Renders a PDF from a known document model and asserts on extracted text content, per the
+/// spec's testing decision — not pixel/layout snapshots, since layout is expected to evolve.
+/// </summary>
+public sealed class FoaieDeParcursPdfRendererTests
+{
+    private static FoaieDeParcursDocument SampleDocument() => new(
+        CompanyName: "Acme SRL",
+        Cui: "RO12345678",
+        DriverName: "Mihai Zivojinovic",
+        VehiclePlate: "B-01-ABC",
+        VehicleMakeModel: "Dacia Duster",
+        VehicleCategory: "M1",
+        FuelType: "Motorina",
+        FuelConsumptionNormPer100Km: 6.8,
+        IssueDate: new DateTimeOffset(2026, 6, 1, 12, 0, 0, TimeSpan.Zero),
+        PeriodStart: new DateTimeOffset(2026, 5, 25, 8, 0, 0, TimeSpan.Zero),
+        PeriodEnd: new DateTimeOffset(2026, 6, 1, 8, 0, 0, TimeSpan.Zero),
+        Segments:
+        [
+            new FoaieDeParcursSegmentRow(new DateTimeOffset(2026, 5, 30, 9, 0, 0, TimeSpan.Zero), "Depot X", "Cluj-Napoca", 330.5, "Deplasare de serviciu")
+        ],
+        LitersFilled: 42.5,
+        AmountPaid: 320.75m,
+        Currency: "RON",
+        StationName: "E70, Bucuresti",
+        FillUpDate: new DateTimeOffset(2026, 6, 1, 8, 0, 0, TimeSpan.Zero),
+        OdometerReading: 85000);
+
+    private static string ExtractText(byte[] pdfBytes)
+    {
+        using var document = PdfDocument.Open(pdfBytes);
+        return string.Join(" ", document.GetPages().Select(p => p.Text));
+    }
+
+    [Fact]
+    public void Render_IncludesCompanyVehicleAndDriverFields()
+    {
+        var text = ExtractText(FoaieDeParcursPdfRenderer.Render(SampleDocument()));
+
+        Assert.Contains("Acme SRL", text);
+        Assert.Contains("RO12345678", text);
+        Assert.Contains("Mihai Zivojinovic", text);
+        Assert.Contains("B-01-ABC", text);
+        Assert.Contains("Dacia Duster", text);
+        Assert.Contains("M1", text);
+        Assert.Contains("Motorina", text);
+    }
+
+    [Fact]
+    public void Render_IncludesEveryRouteSegmentRow()
+    {
+        var text = ExtractText(FoaieDeParcursPdfRenderer.Render(SampleDocument()));
+
+        Assert.Contains("Depot X", text);
+        Assert.Contains("Cluj-Napoca", text);
+        Assert.Contains("330.5", text);
+        Assert.Contains("Deplasare de serviciu", text);
+    }
+
+    [Fact]
+    public void Render_IncludesFuelPurchaseAndConsumptionNorm()
+    {
+        var text = ExtractText(FoaieDeParcursPdfRenderer.Render(SampleDocument()));
+
+        Assert.Contains("E70, Bucuresti", text);
+        Assert.Contains("42.50", text);
+        Assert.Contains("320.75", text);
+        Assert.Contains("RON", text);
+        Assert.Contains("6.8", text);
+        Assert.Contains("85000", text);
+    }
+
+    [Fact]
+    public void BuildFileName_MatchesTheSpecConvention()
+    {
+        var fileName = FoaieDeParcursPdfRenderer.BuildFileName(new DateTimeOffset(2026, 8, 23, 14, 32, 0, TimeSpan.Zero));
+
+        Assert.Equal("FoaieDeParcurs_2026-08-23_1432.pdf", fileName);
+    }
+}

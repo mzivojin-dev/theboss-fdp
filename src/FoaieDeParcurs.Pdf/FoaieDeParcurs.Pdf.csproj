@@ -4,6 +4,17 @@
     <ProjectReference Include="..\FoaieDeParcurs.Core\FoaieDeParcurs.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="PDFsharp" Version="6.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- PdfSharp has no GDI+ on Android — it needs an explicit IFontResolver backed by real
+         font bytes. These are the same OpenSans files already bundled with the app. -->
+    <EmbeddedResource Include="Fonts\OpenSans-Regular.ttf" />
+    <EmbeddedResource Include="Fonts\OpenSans-Semibold.ttf" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

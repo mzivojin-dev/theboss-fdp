@@ -4,6 +4,8 @@ using CommunityToolkit.Mvvm.Input;
 using FoaieDeParcurs.Core.Domain;
 using FoaieDeParcurs.Core.Entities;
 using FoaieDeParcurs.Core.Repositories;
+using FoaieDeParcurs.Pdf;
+using Microsoft.Maui.ApplicationModel.Communication;
 using Microsoft.Maui.Devices.Sensors;
 
 namespace FoaieDeParcurs.App.ViewModels.FillUps;
@@ -11,13 +13,15 @@ namespace FoaieDeParcurs.App.ViewModels.FillUps;
 /// <summary>
 /// Backs the New/Edit Fill-Up screen: detects the current (station) location, auto-prefills
 /// route segments from the GPS trail since the last fill-up via <see cref="TripLedger"/>, and
-/// saves everything as one transaction. Viewing a past fill-up loads it read-only.
+/// saves everything as one transaction. Viewing a past fill-up loads it read-only and adds the
+/// PDF preview / "Verify &amp; Email" flow (spec's Fill-Up Detail / PDF Preview screen).
 /// </summary>
 public sealed partial class FillUpCaptureViewModel(
     IFillUpRepository fillUpRepository,
     IKnownLocationRepository knownLocationRepository,
     IGpsRawPointRepository gpsRawPointRepository,
     IRouteSegmentRepository routeSegmentRepository,
+    IVehicleProfileRepository vehicleProfileRepository,
     ILocationNamer locationNamer)
     : ObservableObject, IQueryAttributable
 {
@@ -72,6 +76,12 @@ public sealed partial class FillUpCaptureViewModel(
 
     [ObservableProperty]
     private bool _isVerified;
+
+    [ObservableProperty]
+    private bool _emailSent;
+
+    [ObservableProperty]
+    private string? _pdfFilePath;
 
     public ObservableCollection<KnownLocation> AvailableKnownLocations { get; } = [];
     public ObservableCollection<RouteSegment> Segments { get; } = [];
@@ -137,6 +147,10 @@ public sealed partial class FillUpCaptureViewModel(
         OdometerReading = fillUp.OdometerReading;
         Notes = fillUp.Notes ?? string.Empty;
         ReceiptPhotoPath = fillUp.ReceiptPhotoPath;
+        IsVerified = fillUp.IsVerified;
+        EmailSent = fillUp.EmailSent;
+        _savedFillUpId = fillUp.Id;
+        _previousFillUp = await fillUpRepository.GetPreviousAsync(fillUp.Timestamp);
 
         var segments = await routeSegmentRepository.GetForFillUpAsync(id);
         Segments.Clear();
@@ -397,4 +411,143 @@ public sealed partial class FillUpCaptureViewModel(
 
     [RelayCommand]
     private static async Task CancelAsync() => await Shell.Current.GoToAsync("..");
+
+    /// <summary>
+    /// Builds (or rebuilds) the Foaie de Parcurs PDF from the current database state — so
+    /// "Re-generate PDF" always reflects any edits made after the fact — and opens it in the
+    /// device's PDF viewer as the preview surface.
+    /// </summary>
+    [RelayCommand]
+    private async Task GeneratePdfAsync()
+    {
+        IsBusy = true;
+        try
+        {
+            var path = await BuildPdfAsync();
+            if (path is null)
+            {
+                return;
+            }
+
+            PdfFilePath = path;
+            await Launcher.Default.OpenAsync(new OpenFileRequest("Foaie de Parcurs", new ReadOnlyFile(path)));
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task<string?> BuildPdfAsync()
+    {
+        var id = _savedFillUpId!.Value;
+        var fillUp = await fillUpRepository.GetByIdAsync(id);
+        if (fillUp is null)
+        {
+            StatusMessage = "This fill-up no longer exists.";
+            return null;
+        }
+
+        var segments = await routeSegmentRepository.GetForFillUpAsync(id);
+        var profile = await vehicleProfileRepository.GetOrCreateAsync();
+        var document = FoaieDeParcursDocumentBuilder.Build(profile, fillUp, _previousFillUp, segments);
+
+        var pdfDirectory = Path.Combine(FileSystem.AppDataDirectory, "pdfs");
+        Directory.CreateDirectory(pdfDirectory);
+        var path = Path.Combine(pdfDirectory, FoaieDeParcursPdfRenderer.BuildFileName(document.IssueDate));
+        await File.WriteAllBytesAsync(path, FoaieDeParcursPdfRenderer.Render(document));
+
+        return path;
+    }
+
+    /// <summary>
+    /// Re-verifies against the current database state (never trusts a stale IsVerified flag),
+    /// and only when it passes builds the PDF and hands it to the platform email intent — the
+    /// app never sends email itself or stores credentials. Best-effort "did you send it?"
+    /// confirmation afterwards, since Android can't confirm delivery.
+    /// </summary>
+    [RelayCommand]
+    private async Task VerifyAndEmailAsync()
+    {
+        IsBusy = true;
+        StatusMessage = null;
+        try
+        {
+            var id = _savedFillUpId!.Value;
+            var reloadedFillUp = await fillUpRepository.GetByIdAsync(id);
+            var reloadedSegments = await routeSegmentRepository.GetForFillUpAsync(id);
+
+            VerificationIssues.Clear();
+
+            if (reloadedFillUp is null)
+            {
+                StatusMessage = "This fill-up no longer exists.";
+                return;
+            }
+
+            var result = FillUpVerifier.Verify(reloadedFillUp, reloadedSegments, _previousFillUp);
+            await fillUpRepository.SetVerifiedAsync(id, result.IsVerified);
+            IsVerified = result.IsVerified;
+
+            if (!result.IsVerified)
+            {
+                foreach (var issue in result.Issues)
+                {
+                    VerificationIssues.Add(issue);
+                }
+
+                StatusMessage = "Verification found issues — fix the route segments before emailing.";
+                return;
+            }
+
+            var path = await BuildPdfAsync();
+            if (path is null)
+            {
+                return;
+            }
+
+            PdfFilePath = path;
+
+            var profile = await vehicleProfileRepository.GetOrCreateAsync();
+            var document = FoaieDeParcursDocumentBuilder.Build(profile, reloadedFillUp, _previousFillUp, reloadedSegments);
+            var subject = ApplyTemplate(profile.EmailSubjectTemplate, document);
+            var body = ApplyTemplate(profile.EmailBodyTemplate, document);
+
+            var message = new EmailMessage
+            {
+                Subject = subject,
+                Body = body,
+                To = string.IsNullOrWhiteSpace(profile.EmailRecipient) ? [] : [profile.EmailRecipient],
+                Attachments = { new EmailAttachment(path) }
+            };
+
+            try
+            {
+                await Email.Default.ComposeAsync(message);
+            }
+            catch (FeatureNotSupportedException)
+            {
+                StatusMessage = "No email app is available on this device — the PDF was generated but couldn't be handed off to compose.";
+                return;
+            }
+
+            var confirmedSent = await Shell.Current.DisplayAlertAsync(
+                "Email sent?",
+                "Did you finish sending the email? (Android can't confirm this automatically.)",
+                "Yes, sent",
+                "Not yet");
+
+            await fillUpRepository.SetEmailSentAsync(id, confirmedSent);
+            EmailSent = confirmedSent;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private static string ApplyTemplate(string template, FoaieDeParcursDocument document) => template
+        .Replace("{PeriodStart}", document.PeriodStart.ToString("dd.MM.yyyy"))
+        .Replace("{PeriodEnd}", document.PeriodEnd.ToString("dd.MM.yyyy"))
+        .Replace("{DriverName}", document.DriverName);
 }
