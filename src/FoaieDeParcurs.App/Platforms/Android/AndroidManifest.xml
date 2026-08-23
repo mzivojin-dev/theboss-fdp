@@ -1,5 +1,37 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<!--
+		Android 11 (API 30) restricted package visibility: an app can no longer resolve another
+		app's intents unless it declares them here first. Without these, PackageManager reports
+		"no handler" even when Gmail (or a PDF viewer) is installed, so
+		Email.Default.ComposeAsync throws FeatureNotSupportedException and
+		Launcher.Default.OpenAsync silently fails. The app targets API 36, so this applies.
+
+		Each entry below maps to a specific thing the app hands off to another app:
+	-->
+	<queries>
+		<!-- Email compose with the PDF attached (single fill-up + Dashboard batch export). MAUI
+		     uses ACTION_SEND / ACTION_SEND_MULTIPLE once attachments are present. -->
+		<intent>
+			<action android:name="android.intent.action.SEND" />
+			<data android:mimeType="application/pdf" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.SEND_MULTIPLE" />
+			<data android:mimeType="application/pdf" />
+		</intent>
+		<!-- Email compose with no attachment — MAUI falls back to ACTION_SENDTO mailto:, which is
+		     also what its "is an email client even available?" pre-check resolves against. -->
+		<intent>
+			<action android:name="android.intent.action.SENDTO" />
+			<data android:scheme="mailto" />
+		</intent>
+		<!-- Opening a generated Foaie de Parcurs in a PDF viewer ("Regenerează PDF" preview). -->
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:mimeType="application/pdf" />
+		</intent>
+	</queries>
 	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
 		<!--
 			Google Maps SDK API key. This placeholder makes map tiles fail to load (a blank/grey
