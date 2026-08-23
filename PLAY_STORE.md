@@ -39,12 +39,6 @@ Either way: one-time $25 USD registration fee, plus identity verification.
 
 These are real blockers in the current build, not paperwork:
 
-- **Google Maps API key is a placeholder.** `AndroidManifest.xml` ships
-  `YOUR_GOOGLE_MAPS_API_KEY_HERE`, so map tiles never render. Either add a real key (and note the
-  Maps SDK makes network calls to Google, which changes your Data safety answers — see §3), or
-  remove the map control and rely on the offline city fallback that already exists. Shipping a
-  visibly broken map invites a quality rejection.
-
 - **No physical-device testing has ever been done.** Every release so far was verified only on an
   emulator. Real GPS behaves differently — drift, tunnels, signal loss, battery drain, and
   Android's aggressive background-process killing on some OEM builds (Xiaomi, Samsung, Huawei are
@@ -54,7 +48,7 @@ These are real blockers in the current build, not paperwork:
 - **A privacy policy must be publicly hosted at a URL.** Required even though the app sends
   nothing anywhere. GitHub Pages is fine. Content is simple and honest for this app: all data
   (GPS, photos, fill-ups) stays in local storage on the device; no analytics; no third-party
-  sharing; the only outbound traffic is Google Maps tiles/geocoding *if* an API key is configured.
+  sharing; the only outbound traffic is Android's system geocoder when you search an address.
 
 ---
 
@@ -72,8 +66,8 @@ These are real blockers in the current build, not paperwork:
 
 **Data safety form.** Declare what leaves the device. For this app as built: nothing is collected
 or shared off-device — GPS points, receipt photos, and fill-up records live only in the local
-SQLite database and app-local file storage. If you add a real Maps API key, disclose the Maps
-Platform network calls accordingly.
+SQLite database and app-local file storage. The app bundles no Maps SDK; the only network call
+is to Android's own geocoder when searching an address.
 
 **Foreground service declaration — this app definitely needs one.** The app targets API 36 and
 declares `FOREGROUND_SERVICE_LOCATION` for the trip tracker, so Play requires a declaration in

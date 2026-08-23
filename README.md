@@ -34,8 +34,9 @@ rest of the SingleProject MAUI structure is already platform-agnostic.
   ```
 - Android SDK (platform 36, build-tools 36.0.0, an emulator system image) — installed automatically
   alongside the MAUI workload, or via Android Studio's SDK Manager.
-- A Google Maps SDK API key for the map screens (see [Configuration](#configuration) below) — the
-  app remains usable without one, falling back to an offline city lookup.
+
+No Google Maps SDK or API key is required — address lookup uses Android's own system Geocoder,
+with a bundled offline Romanian city list as the fallback when there's no network.
 
 ## Running on the emulator
 
@@ -117,7 +118,6 @@ On first launch, open **Settings** and fill in:
 - Company name, CUI, driver name, vehicle plate/make/model, declared fuel consumption norm
 - Default email recipient and subject/body template
 - Reporting cadence (per-fill-up or monthly)
-- Your own Google Maps SDK API key (optional — leave blank to use the offline city-lookup fallback)
 
 ## Running the tests
 

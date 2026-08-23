@@ -65,7 +65,6 @@ public sealed class VehicleProfileRepositoryTests : IDisposable
         profile.VehicleCategory = "M1";
         profile.FuelType = FuelType.Motorina;
         profile.FuelConsumptionNormPer100Km = 6.8;
-        profile.GoogleMapsApiKey = "test-key";
         profile.EmailRecipient = "contabilitate@acme.ro";
         profile.EmailSubjectTemplate = "Custom subject {PeriodStart}";
         profile.EmailBodyTemplate = "Custom body";
@@ -84,7 +83,6 @@ public sealed class VehicleProfileRepositoryTests : IDisposable
         Assert.Equal("M1", reloaded.VehicleCategory);
         Assert.Equal(FuelType.Motorina, reloaded.FuelType);
         Assert.Equal(6.8, reloaded.FuelConsumptionNormPer100Km);
-        Assert.Equal("test-key", reloaded.GoogleMapsApiKey);
         Assert.Equal("contabilitate@acme.ro", reloaded.EmailRecipient);
         Assert.Equal("Custom subject {PeriodStart}", reloaded.EmailSubjectTemplate);
         Assert.Equal("Custom body", reloaded.EmailBodyTemplate);

@@ -32,17 +32,13 @@
 			<data android:mimeType="application/pdf" />
 		</intent>
 	</queries>
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
-		<!--
-			Google Maps SDK API key. This placeholder makes map tiles fail to load (a blank/grey
-			grid) rather than crash the app — pin-drop and address search still work without a
-			real key (see README "Configuration"). Replace with your own key from
-			https://console.cloud.google.com/google/maps-apis, or set it in Settings once that
-			screen exists (ticket #4) to override this manifest value at runtime.
-		-->
-		<meta-data android:name="com.google.android.geo.API_KEY" android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE" />
-	</application>
-	<!-- Maps SDK tile fetches and (optional) live reverse geocoding are the only network use in this app. -->
+	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true" />
+	<!--
+		The app deliberately uses no Google Maps SDK and therefore needs no Maps API key. Address
+		lookup goes through Android's own system Geocoder, with the bundled offline Romanian city
+		list as the fallback when there's no network. That geocoder call is the only network use
+		in the app; everything else is on-device.
+	-->
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 

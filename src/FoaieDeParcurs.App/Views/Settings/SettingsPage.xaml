@@ -42,10 +42,6 @@
             <Label Text="Șablon conținut" />
             <Editor Text="{Binding EmailBodyTemplate}" HeightRequest="100" AutoSize="TextChanges" />
 
-            <Label Text="Hărți" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
-            <Label Text="Cheie API Google Maps SDK (opțional — lăsați gol pentru lista offline de orașe)" FontSize="12" TextColor="Gray" />
-            <Entry Text="{Binding GoogleMapsApiKey}" />
-
             <Label Text="Urmărire" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
             <Grid ColumnDefinitions="*,Auto">
                 <Label Text="Urmărire GPS în fundal" VerticalOptions="Center" />

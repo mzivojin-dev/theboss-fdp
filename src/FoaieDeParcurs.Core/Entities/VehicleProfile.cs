@@ -19,9 +19,6 @@ public sealed class VehicleProfile
     public FuelType FuelType { get; set; } = FuelType.Benzina;
     public double FuelConsumptionNormPer100Km { get; set; }
 
-    /// <summary>Placeholder until the user supplies their own key in Settings. See README.</summary>
-    public string GoogleMapsApiKey { get; set; } = string.Empty;
-
     public string EmailRecipient { get; set; } = string.Empty;
     public string EmailSubjectTemplate { get; set; } = "Foaie de Parcurs - {PeriodStart} - {PeriodEnd}";
     public string EmailBodyTemplate { get; set; } =

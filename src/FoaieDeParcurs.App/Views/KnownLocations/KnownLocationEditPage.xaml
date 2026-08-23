@@ -4,29 +4,52 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:FoaieDeParcurs.App.ViewModels.KnownLocations"
-    xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
     x:DataType="vm:KnownLocationEditViewModel"
     Title="{Binding Title}">
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
 
-            <Label Text="Atinge harta pentru a plasa marcajul sau caută o adresă mai jos." FontSize="13" TextColor="Gray" />
-
-            <maps:Map
-                x:Name="LocationMap"
-                HeightRequest="260"
-                IsShowingUser="False" />
+            <Label
+                Text="Caută adresa locației sau folosește poziția curentă. Coordonatele pot fi ajustate manual."
+                FontSize="13"
+                TextColor="Gray" />
 
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                 <Entry
                     Grid.Column="0"
                     Placeholder="Caută adresă (ex. Piața Victoriei, București)"
-                    Text="{Binding SearchAddress}" />
+                    Text="{Binding SearchAddress}"
+                    ReturnType="Search"
+                    ReturnCommand="{Binding SearchAddressCommand}" />
                 <Button Grid.Column="1" Text="Caută" Command="{Binding SearchAddressCommand}" />
             </Grid>
 
-            <Label Text="Nume" FontAttributes="Bold" />
+            <!--  Search feedback sits directly under the search box, where the problem is caused
+                  and where the eye already is — not at the bottom of the form.  -->
+            <Label
+                Text="{Binding StatusMessage}"
+                FontSize="13"
+                TextColor="{Binding IsStatusError, Converter={StaticResource StatusColorConverter}}"
+                IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+
+            <Button Text="Folosește poziția curentă" Command="{Binding UseCurrentLocationCommand}" />
+
+            <!--  Coordinates are shown (and editable) because without a map this is the only way
+                  to see what was actually resolved, or to paste a pin copied from elsewhere.  -->
+            <Label Text="Coordonate" FontAttributes="Bold" Margin="0,8,0,0" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="Latitudine" FontSize="12" TextColor="Gray" />
+                    <Entry Text="{Binding Latitude}" Keyboard="Numeric" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                    <Label Text="Longitudine" FontSize="12" TextColor="Gray" />
+                    <Entry Text="{Binding Longitude}" Keyboard="Numeric" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Label Text="Nume" FontAttributes="Bold" Margin="0,8,0,0" />
             <Entry Placeholder="ex. Depozit X" Text="{Binding Name}" />
 
             <Label Text="Tip" FontAttributes="Bold" />
@@ -34,8 +57,6 @@
 
             <Label Text="Rază de asociere (metri)" FontAttributes="Bold" />
             <Entry Text="{Binding RadiusMeters}" Keyboard="Numeric" />
-
-            <Label Text="{Binding StatusMessage}" TextColor="Red" IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,16,0,0">
                 <Button Grid.Column="0" Text="Anulează" Command="{Binding CancelCommand}" />

@@ -46,9 +46,6 @@ public sealed partial class SettingsViewModel(IVehicleProfileRepository reposito
     private double _fuelConsumptionNormPer100Km;
 
     [ObservableProperty]
-    private string _googleMapsApiKey = string.Empty;
-
-    [ObservableProperty]
     private string _emailRecipient = string.Empty;
 
     [ObservableProperty]
@@ -85,7 +82,6 @@ public sealed partial class SettingsViewModel(IVehicleProfileRepository reposito
             VehicleCategory = profile.VehicleCategory;
             FuelType = profile.FuelType;
             FuelConsumptionNormPer100Km = profile.FuelConsumptionNormPer100Km;
-            GoogleMapsApiKey = profile.GoogleMapsApiKey;
             EmailRecipient = profile.EmailRecipient;
             EmailSubjectTemplate = profile.EmailSubjectTemplate;
             EmailBodyTemplate = profile.EmailBodyTemplate;
@@ -115,7 +111,6 @@ public sealed partial class SettingsViewModel(IVehicleProfileRepository reposito
                 VehicleCategory = VehicleCategory,
                 FuelType = FuelType,
                 FuelConsumptionNormPer100Km = FuelConsumptionNormPer100Km,
-                GoogleMapsApiKey = GoogleMapsApiKey,
                 EmailRecipient = EmailRecipient,
                 EmailSubjectTemplate = EmailSubjectTemplate,
                 EmailBodyTemplate = EmailBodyTemplate,

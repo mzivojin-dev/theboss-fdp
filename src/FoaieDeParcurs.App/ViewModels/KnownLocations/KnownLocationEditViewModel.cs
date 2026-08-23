@@ -15,7 +15,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
 {
     public const string LocationIdQueryKey = "locationId";
 
-    /// <summary>Bucharest — a reasonable default map center for a Romanian driver with no pin set yet.</summary>
+    /// <summary>Bucharest — a reasonable default for a Romanian driver who hasn't set coordinates yet.</summary>
     private static readonly Microsoft.Maui.Devices.Sensors.Location DefaultCenter = new(44.4268, 26.1025);
 
     private int? _id;
@@ -50,8 +50,24 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
     [ObservableProperty]
     private string? _statusMessage;
 
+    /// <summary>Drives the status line's colour — the same line reports both failures and successes.</summary>
+    [ObservableProperty]
+    private bool _isStatusError;
+
     public IReadOnlyList<KnownLocationType> AvailableTypes { get; } =
         Enum.GetValues<KnownLocationType>();
+
+    private void ReportError(string message)
+    {
+        IsStatusError = true;
+        StatusMessage = message;
+    }
+
+    private void ReportSuccess(string message)
+    {
+        IsStatusError = false;
+        StatusMessage = message;
+    }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -72,7 +88,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
             var location = await repository.GetByIdAsync(id);
             if (location is null)
             {
-                StatusMessage = "Această locație nu mai există.";
+                ReportError("Această locație nu mai există.");
                 return;
             }
 
@@ -88,18 +104,12 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
         }
     }
 
-    /// <summary>Called from the map's tap gesture (code-behind), since Map has no bindable tap command.</summary>
-    public void SetPinLocation(double latitude, double longitude)
-    {
-        Latitude = latitude;
-        Longitude = longitude;
-    }
-
     [RelayCommand]
     private async Task SearchAddressAsync()
     {
         if (string.IsNullOrWhiteSpace(SearchAddress))
         {
+            ReportError("Introduceți o adresă de căutat.");
             return;
         }
 
@@ -107,23 +117,69 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
         StatusMessage = null;
         try
         {
-            // Microsoft.Maui.Devices.Sensors.Geocoding uses the platform's native geocoder
-            // (Android's system Geocoder), which does NOT require a Google Maps API key —
-            // this keeps address search working even with no key configured.
+            // Microsoft.Maui.Devices.Sensors.Geocoding uses the platform's own geocoder
+            // (Android's system Geocoder) — no Google Maps SDK and no API key involved.
             var results = (await Geocoding.Default.GetLocationsAsync(SearchAddress)).ToList();
             var match = results.FirstOrDefault();
             if (match is null)
             {
-                StatusMessage = "Nu a fost găsită nicio adresă corespunzătoare.";
+                ReportError("Nu a fost găsită nicio adresă corespunzătoare. Încercați o adresă mai exactă sau introduceți coordonatele manual.");
                 return;
             }
 
             Latitude = match.Latitude;
             Longitude = match.Longitude;
+            ReportSuccess($"Adresă găsită: {match.Latitude:0.00000}, {match.Longitude:0.00000}");
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Căutarea adresei nu este disponibilă: {ex.Message}";
+            ReportError($"Căutarea adresei nu este disponibilă: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    /// <summary>
+    /// Replaces what tapping the map used to do — the common case is standing at the place you
+    /// want to save. Uses the platform's own location services, no Maps SDK.
+    /// </summary>
+    [RelayCommand]
+    private async Task UseCurrentLocationAsync()
+    {
+        IsBusy = true;
+        StatusMessage = null;
+        try
+        {
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+            if (status != PermissionStatus.Granted)
+            {
+                status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+            }
+
+            if (status != PermissionStatus.Granted)
+            {
+                ReportError("Permisiunea de locație este necesară pentru a folosi poziția curentă.");
+                return;
+            }
+
+            var location = await Geolocation.Default.GetLocationAsync(
+                new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(15)));
+
+            if (location is null)
+            {
+                ReportError("Poziția curentă nu a putut fi determinată. Încercați din nou sau introduceți coordonatele manual.");
+                return;
+            }
+
+            Latitude = location.Latitude;
+            Longitude = location.Longitude;
+            ReportSuccess($"Poziția curentă: {location.Latitude:0.00000}, {location.Longitude:0.00000}");
+        }
+        catch (Exception ex)
+        {
+            ReportError($"Poziția curentă nu este disponibilă: {ex.Message}");
         }
         finally
         {
@@ -136,7 +192,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
     {
         if (string.IsNullOrWhiteSpace(Name))
         {
-            StatusMessage = "Numele este obligatoriu.";
+            ReportError("Numele este obligatoriu.");
             return;
         }
 
@@ -148,7 +204,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
                 var existing = await repository.GetByIdAsync(id);
                 if (existing is null)
                 {
-                    StatusMessage = "Această locație nu mai există.";
+                    ReportError("Această locație nu mai există.");
                     return;
                 }
 
