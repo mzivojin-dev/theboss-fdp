@@ -1,23 +1,17 @@
-﻿namespace FoaieDeParcurs.App;
+using FoaieDeParcurs.App.ViewModels;
+
+namespace FoaieDeParcurs.App;
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
+	private readonly TrackingViewModel _viewModel;
 
-	public MainPage()
+	public MainPage(TrackingViewModel viewModel)
 	{
 		InitializeComponent();
+		BindingContext = _viewModel = viewModel;
 	}
 
-	private void OnCounterClicked(object? sender, EventArgs e)
-	{
-		count++;
-
-		if (count == 1)
-			CounterBtn.Text = $"Clicked {count} time";
-		else
-			CounterBtn.Text = $"Clicked {count} times";
-
-		SemanticScreenReader.Announce(CounterBtn.Text);
-	}
+	private void OnTrackingToggled(object? sender, ToggledEventArgs e) =>
+		_viewModel.ToggleCommand.Execute(null);
 }

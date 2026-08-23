@@ -17,7 +17,7 @@ namespace FoaieDeParcurs.Data.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "TEXT", nullable: false),
                     StationLocationId = table.Column<int>(type: "INTEGER", nullable: true),
                     StationName = table.Column<string>(type: "TEXT", nullable: true),
                     StationLatitude = table.Column<double>(type: "REAL", nullable: true),
@@ -28,7 +28,7 @@ namespace FoaieDeParcurs.Data.Migrations
                     ReceiptPhotoPath = table.Column<string>(type: "TEXT", nullable: true),
                     OdometerReading = table.Column<double>(type: "REAL", nullable: true),
                     Notes = table.Column<string>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     IsVerified = table.Column<bool>(type: "INTEGER", nullable: false),
                     EmailSent = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
@@ -45,7 +45,7 @@ namespace FoaieDeParcurs.Data.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Latitude = table.Column<double>(type: "REAL", nullable: false),
                     Longitude = table.Column<double>(type: "REAL", nullable: false),
-                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Speed = table.Column<double>(type: "REAL", nullable: true),
                     Accuracy = table.Column<double>(type: "REAL", nullable: true)
                 },
@@ -65,7 +65,7 @@ namespace FoaieDeParcurs.Data.Migrations
                     Longitude = table.Column<double>(type: "REAL", nullable: false),
                     RadiusMeters = table.Column<double>(type: "REAL", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -83,11 +83,11 @@ namespace FoaieDeParcurs.Data.Migrations
                     StartLocationName = table.Column<string>(type: "TEXT", nullable: false),
                     StartLatitude = table.Column<double>(type: "REAL", nullable: false),
                     StartLongitude = table.Column<double>(type: "REAL", nullable: false),
-                    StartTimestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    StartTimestamp = table.Column<DateTime>(type: "TEXT", nullable: false),
                     EndLocationName = table.Column<string>(type: "TEXT", nullable: false),
                     EndLatitude = table.Column<double>(type: "REAL", nullable: false),
                     EndLongitude = table.Column<double>(type: "REAL", nullable: false),
-                    EndTimestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    EndTimestamp = table.Column<DateTime>(type: "TEXT", nullable: false),
                     DistanceKm = table.Column<double>(type: "REAL", nullable: false),
                     PolylineEncoded = table.Column<string>(type: "TEXT", nullable: true),
                     Purpose = table.Column<string>(type: "TEXT", nullable: false)

@@ -27,7 +27,7 @@ namespace FoaieDeParcurs.Data.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Currency")
@@ -65,7 +65,7 @@ namespace FoaieDeParcurs.Data.Migrations
                     b.Property<string>("StationName")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTimeOffset>("Timestamp")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -91,7 +91,7 @@ namespace FoaieDeParcurs.Data.Migrations
                     b.Property<double?>("Speed")
                         .HasColumnType("REAL");
 
-                    b.Property<DateTimeOffset>("Timestamp")
+                    b.Property<DateTime>("Timestamp")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -105,7 +105,7 @@ namespace FoaieDeParcurs.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<double>("Latitude")
@@ -151,7 +151,7 @@ namespace FoaieDeParcurs.Data.Migrations
                     b.Property<double>("EndLongitude")
                         .HasColumnType("REAL");
 
-                    b.Property<DateTimeOffset>("EndTimestamp")
+                    b.Property<DateTime>("EndTimestamp")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PolylineEncoded")
@@ -174,7 +174,7 @@ namespace FoaieDeParcurs.Data.Migrations
                     b.Property<double>("StartLongitude")
                         .HasColumnType("REAL");
 
-                    b.Property<DateTimeOffset>("StartTimestamp")
+                    b.Property<DateTime>("StartTimestamp")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

@@ -20,6 +20,18 @@ public sealed class AppDbContext : DbContext
     public DbSet<GpsRawPoint> GpsRawPoints => Set<GpsRawPoint>();
     public DbSet<VehicleProfile> VehicleProfiles => Set<VehicleProfile>();
 
+    /// <summary>
+    /// SQLite's EF Core provider can't translate DateTimeOffset comparisons/ordering
+    /// server-side. Every DateTimeOffset in this app is always UTC, so storing as a plain
+    /// UTC DateTime (which SQLite compares/orders natively) loses nothing and fixes queries
+    /// like "points at or after this timestamp".
+    /// </summary>
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<DateTimeOffset>()
+            .HaveConversion<DateTimeOffsetToUtcDateTimeConverter>();
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<KnownLocation>(e =>
