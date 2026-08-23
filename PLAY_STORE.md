@@ -1,57 +1,117 @@
 # Publishing to the Google Play Store
 
-Play Store submission is explicitly out of scope for v1 (see the spec) — the developer doesn't
-yet have a Google Play Developer account. This app stops at a signed, installable release build
-(see `README.md` for how that's produced and where the keystore lives). This note lists what's
-left for whenever that account exists.
+Play Store submission was out of scope for v1 — the app stops at a signed, installable release
+build (see `README.md` for how that's produced and where the keystore lives). This is what's
+actually left, in the order it matters.
 
-## 1. Google Play Developer account
+Requirements below were verified against Google's documentation on 2026-08-23. Play policies
+change often — re-check the linked pages at submission time.
 
-- Register at https://play.google.com/console/signup (one-time $25 USD registration fee).
-- Complete identity verification (can take a few days for individual accounts).
+---
 
-## 2. App listing basics
+## 0. The thing that will cost you the most time: account type
 
-- Create the app in Play Console, set its default language and app/game category.
-- Short description, full description, app icon (512x512), feature graphic (1024x500).
-- Phone screenshots (minimum 2, JPEG/PNG) — capture from a real run of the signed build.
-- Privacy policy URL — required even though this app sends no data anywhere. A one-page
-  statement ("all data stays on-device; no analytics; no third-party sharing") hosted anywhere
-  public (e.g. a GitHub Pages page) satisfies this.
+This decides whether you can ship in days or weeks, so decide it first.
 
-## 3. Data safety form
+**Personal account** — cheap and quick to open, but any personal account created after
+2023-11-13 must **run a closed test with at least 12 testers, opted in continuously for at least
+14 days**, before you can even apply for production access. Twelve real Google accounts, actually
+opted in, for two solid weeks. You then apply for production access and answer questions about
+your testing.
+([source](https://support.google.com/googleplay/android-developer/answer/14151465))
 
-Play Console requires a declared data-safety form before publishing. Given this app's design
-(spec: "no analytics, no third-party data sharing", everything local):
+**Organization account** — Google's 12-tester rule is written as applying to *personal* accounts,
+so an organization account appears to avoid it. The trade-off is that an organization account
+requires a **D-U-N-S number** for business verification, which is free from Dun & Bradstreet but
+can take days to weeks to be issued.
+([source](https://support.google.com/googleplay/android-developer/answer/13628312))
 
-- Data collected: **none** shared off-device. GPS location, photos, and fill-up data are stored
-  only in the app's local SQLite database and local file storage.
-- The Google Maps SDK (if a real API key is configured — see `README.md`) does make network
-  requests to Google for map tiles/geocoding; disclose this per Google's Maps Platform data-use
-  terms if a key is added before publishing.
+Given this app is built for a company that already has a CUI, the organization route is likely
+both more appropriate and faster overall — but **confirm the testing requirement for org accounts
+with Google before paying**, because Google's help pages don't state the exemption explicitly and
+getting this wrong costs weeks either way.
 
-## 4. Production AAB, not APK
+Either way: one-time $25 USD registration fee, plus identity verification.
 
-Play Store requires an Android App Bundle (`.aab`), not an APK. The release build process in
-`README.md` already produces both — use the `.aab` for the Play Console upload, keep the `.apk`
-for direct-install testing/distribution outside the Store.
+---
 
-## 5. Closed testing track first
+## 1. Fix these before you submit
 
-Before any production release, run at least one closed testing track with a small group of
-testers (Play Console requires this for new developer accounts as of their current policy) —
-add your own account and/or a few trusted testers by email, upload the `.aab`, and confirm the
-app installs and runs correctly from the Play Store test link before promoting to production.
+These are real blockers in the current build, not paperwork:
 
-## 6. Target API level / Play policy compliance
+- **Google Maps API key is a placeholder.** `AndroidManifest.xml` ships
+  `YOUR_GOOGLE_MAPS_API_KEY_HERE`, so map tiles never render. Either add a real key (and note the
+  Maps SDK makes network calls to Google, which changes your Data safety answers — see §3), or
+  remove the map control and rely on the offline city fallback that already exists. Shipping a
+  visibly broken map invites a quality rejection.
 
-Re-check Play Console's current target API level requirement at submission time (Google raises
-this roughly annually) — bump `$(SupportedOSPlatformVersion)` / target SDK in
-`FoaieDeParcurs.App.csproj` if the installed workload's default has fallen behind by then.
+- **No physical-device testing has ever been done.** Every release so far was verified only on an
+  emulator. Real GPS behaves differently — drift, tunnels, signal loss, battery drain, and
+  Android's aggressive background-process killing on some OEM builds (Xiaomi, Samsung, Huawei are
+  notorious) directly affect this app's core tracking loop. Do a real drive test before exposing
+  this to anyone.
 
-## 7. Signing
+- **A privacy policy must be publicly hosted at a URL.** Required even though the app sends
+  nothing anywhere. GitHub Pages is fine. Content is simple and honest for this app: all data
+  (GPS, photos, fill-ups) stays in local storage on the device; no analytics; no third-party
+  sharing; the only outbound traffic is Google Maps tiles/geocoding *if* an API key is configured.
 
-Play App Signing is strongly recommended: upload the release keystore's signing key to Google
-during the first submission, and Google re-signs the app for distribution with a Google-managed
-key — this protects against permanently losing the ability to update the app if the local
-keystore is ever lost. See `README.md`'s keystore section for the backup warning regardless.
+---
+
+## 2. Store listing assets
+
+- App icon **512×512** PNG, feature graphic **1024×500**.
+- At least 2 phone screenshots (JPEG/PNG) — take them from a real run with a filled-in Vehicle
+  Profile, not the empty-state screens.
+- Short description, full description, app category, default language (Romanian makes sense given
+  the UI).
+
+---
+
+## 3. Required declarations in Play Console
+
+**Data safety form.** Declare what leaves the device. For this app as built: nothing is collected
+or shared off-device — GPS points, receipt photos, and fill-up records live only in the local
+SQLite database and app-local file storage. If you add a real Maps API key, disclose the Maps
+Platform network calls accordingly.
+
+**Foreground service declaration — this app definitely needs one.** The app targets API 36 and
+declares `FOREGROUND_SERVICE_LOCATION` for the trip tracker, so Play requires a declaration in
+**App content** covering: what the foreground service does, what breaks for the user if the system
+defers it, the use case, and **a link to a video demonstrating the feature** — showing the exact
+steps a user takes to trigger it. Budget time to record that video (screen recording of toggling
+tracking in Settings and driving a route is enough).
+([source](https://support.google.com/googleplay/android-developer/answer/13392821))
+
+**Location permission declaration.** Expect to justify `ACCESS_FINE_LOCATION`. The app
+deliberately does *not* request `ACCESS_BACKGROUND_LOCATION` (it uses a foreground service with a
+persistent notification instead), which avoids the much stricter background-location review — keep
+it that way.
+
+---
+
+## 4. Target API level
+
+Play requires **API 36 (Android 16) or higher** for new apps and updates as of 2026-08-31.
+**This app already targets API 36**, so it's compliant — verify it's still current at submission
+time, since Google raises this roughly annually.
+([source](https://support.google.com/googleplay/android-developer/answer/11926878))
+
+---
+
+## 5. Upload an AAB, not an APK
+
+Play requires an Android App Bundle. The release process in `README.md` produces both — upload
+the `.aab`, keep the `.apk` for direct-install distribution outside the Store.
+
+Bump `ApplicationVersion` (Android `versionCode`) in `FoaieDeParcurs.App.csproj` for **every**
+upload — Play rejects a re-used version code outright.
+
+---
+
+## 6. Signing
+
+Enroll in **Play App Signing**. Google holds the app signing key and re-signs your uploads,
+which means losing the local keystore stops being catastrophic — you can request an upload-key
+reset instead of permanently losing the ability to update the app. Back up
+`keystore/foaiedeparcurs-release.keystore` and its password regardless (see `README.md`).
