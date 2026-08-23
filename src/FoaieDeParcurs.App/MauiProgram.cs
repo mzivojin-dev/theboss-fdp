@@ -1,10 +1,12 @@
 using FoaieDeParcurs.App.Platforms.Android;
 using FoaieDeParcurs.App.Services;
-using FoaieDeParcurs.App.ViewModels;
+using FoaieDeParcurs.App.ViewModels.FillUps;
 using FoaieDeParcurs.App.ViewModels.KnownLocations;
 using FoaieDeParcurs.App.ViewModels.Settings;
+using FoaieDeParcurs.App.Views.FillUps;
 using FoaieDeParcurs.App.Views.KnownLocations;
 using FoaieDeParcurs.App.Views.Settings;
+using FoaieDeParcurs.Core.Domain;
 using FoaieDeParcurs.Core.Repositories;
 using FoaieDeParcurs.Data;
 using FoaieDeParcurs.Data.Repositories;
@@ -35,6 +37,9 @@ public static class MauiProgram
 		builder.Services.AddScoped<IKnownLocationRepository, KnownLocationRepository>();
 		builder.Services.AddScoped<IVehicleProfileRepository, VehicleProfileRepository>();
 		builder.Services.AddScoped<IGpsRawPointRepository, GpsRawPointRepository>();
+		builder.Services.AddScoped<IFillUpRepository, FillUpRepository>();
+		builder.Services.AddScoped<IRouteSegmentRepository, RouteSegmentRepository>();
+		builder.Services.AddSingleton<ILocationNamer, RomanianCityGazetteer>();
 		builder.Services.AddSingleton<ITrackingService, AndroidTrackingService>();
 
 		builder.Services.AddTransient<KnownLocationListViewModel>();
@@ -45,8 +50,10 @@ public static class MauiProgram
 		builder.Services.AddTransient<SettingsViewModel>();
 		builder.Services.AddTransient<SettingsPage>();
 
-		builder.Services.AddTransient<TrackingViewModel>();
-		builder.Services.AddTransient<MainPage>();
+		builder.Services.AddTransient<FillUpListViewModel>();
+		builder.Services.AddTransient<FillUpListPage>();
+		builder.Services.AddTransient<FillUpCaptureViewModel>();
+		builder.Services.AddTransient<FillUpCapturePage>();
 
 #if DEBUG
 		builder.Logging.AddDebug();

@@ -12,6 +12,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+            <converters:VerifiedStatusIconConverter x:Key="VerifiedStatusIconConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

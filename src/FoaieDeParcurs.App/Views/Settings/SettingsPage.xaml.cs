@@ -17,4 +17,7 @@ public partial class SettingsPage : ContentPage
         base.OnAppearing();
         _viewModel.LoadCommand.Execute(null);
     }
+
+    private void OnTrackingToggled(object? sender, ToggledEventArgs e) =>
+        _viewModel.ToggleTrackingCommand.Execute(null);
 }

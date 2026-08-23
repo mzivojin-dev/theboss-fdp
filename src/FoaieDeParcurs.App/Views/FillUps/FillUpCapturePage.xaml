@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FoaieDeParcurs.App.Views.FillUps.FillUpCapturePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:FoaieDeParcurs.App.ViewModels.FillUps"
+    xmlns:entities="clr-namespace:FoaieDeParcurs.Core.Entities;assembly=FoaieDeParcurs.Core"
+    x:DataType="vm:FillUpCaptureViewModel"
+    Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="10">
+
+            <Label Text="Station" FontAttributes="Bold" FontSize="18" />
+            <Label Text="Known location (optional)" />
+            <Picker
+                ItemsSource="{Binding AvailableKnownLocations}"
+                SelectedItem="{Binding SelectedKnownLocation}"
+                ItemDisplayBinding="{Binding Name}"
+                IsEnabled="{Binding CanEdit}" />
+            <Label Text="Station name" />
+            <Entry Text="{Binding StationName}" IsEnabled="{Binding CanEdit}" />
+
+            <Label Text="Fuel" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
+            <Label Text="Liters filled" />
+            <Entry Text="{Binding LitersFilled}" Keyboard="Numeric" IsEnabled="{Binding CanEdit}" />
+            <Label Text="Amount paid" />
+            <Entry Text="{Binding AmountPaid}" Keyboard="Numeric" IsEnabled="{Binding CanEdit}" />
+            <Label Text="Currency" />
+            <Entry Text="{Binding Currency}" IsEnabled="{Binding CanEdit}" />
+            <Label Text="Odometer reading (optional, km)" />
+            <Entry Text="{Binding OdometerReading}" Keyboard="Numeric" IsEnabled="{Binding CanEdit}" />
+
+            <Label Text="Receipt photo" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8" IsVisible="{Binding CanEdit}">
+                <Button Grid.Column="0" Text="Take photo" Command="{Binding TakePhotoCommand}" />
+                <Button Grid.Column="1" Text="Choose from gallery" Command="{Binding PickPhotoCommand}" />
+            </Grid>
+            <Image
+                Source="{Binding ReceiptPhotoPath}"
+                HeightRequest="160"
+                Aspect="AspectFit"
+                IsVisible="{Binding ReceiptPhotoPath, Converter={StaticResource StringNotEmptyConverter}}" />
+
+            <Label Text="Route segments" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
+            <!-- IsEnabled cascades to every descendant, including the CollectionView's item
+                 templates — simpler and more reliable than a RelativeSource lookup through
+                 virtualized item containers. -->
+            <CollectionView ItemsSource="{Binding Segments}" IsEnabled="{Binding CanEdit}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="entities:RouteSegment">
+                        <Border Padding="10" Margin="0,4" Stroke="LightGray" StrokeShape="RoundRectangle 8">
+                            <VerticalStackLayout Spacing="4">
+                                <Grid ColumnDefinitions="*,Auto,*">
+                                    <Entry Grid.Column="0" Text="{Binding StartLocationName}" />
+                                    <Label Grid.Column="1" Text="&#8594;" VerticalOptions="Center" Margin="8,0" />
+                                    <Entry Grid.Column="2" Text="{Binding EndLocationName}" />
+                                </Grid>
+                                <Grid ColumnDefinitions="Auto,*">
+                                    <Label Grid.Column="0" Text="Distance (km):" VerticalOptions="Center" />
+                                    <Entry Grid.Column="1" Text="{Binding DistanceKm}" Keyboard="Numeric" />
+                                </Grid>
+                                <Label FontSize="12" TextColor="Gray">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="{}{0:g} &#8594; {1:g}">
+                                            <Binding Path="StartTimestamp" />
+                                            <Binding Path="EndTimestamp" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="Notes (optional)" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
+            <Editor Text="{Binding Notes}" HeightRequest="80" AutoSize="TextChanges" IsEnabled="{Binding CanEdit}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,20,0,0" IsVisible="{Binding CanEdit}">
+                <Button Grid.Column="0" Text="Cancel" Command="{Binding CancelCommand}" />
+                <Button Grid.Column="1" Text="Save" BackgroundColor="{StaticResource Primary}" TextColor="White" Command="{Binding SaveCommand}" />
+            </Grid>
+
+            <Label
+                Text="{Binding StatusMessage}"
+                TextColor="Gray"
+                HorizontalTextAlignment="Center"
+                IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="FoaieDeParcurs.App.Views.FillUps.FillUpListPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:FoaieDeParcurs.App.ViewModels.FillUps"
+    xmlns:entities="clr-namespace:FoaieDeParcurs.Core.Entities;assembly=FoaieDeParcurs.Core"
+    x:DataType="vm:FillUpListViewModel"
+    Title="Foaie de Parcurs">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="+ New Fill-Up" Command="{Binding AddCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid>
+        <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
+            <CollectionView ItemsSource="{Binding FillUps}" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="entities:FillUp">
+                        <Grid Padding="16,12" ColumnDefinitions="Auto,*,Auto">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FillUpListViewModel}}, Path=ViewCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Grid.GestureRecognizers>
+
+                            <Label
+                                Grid.Column="0"
+                                Text="{Binding IsVerified, Converter={StaticResource VerifiedStatusIconConverter}}"
+                                FontSize="20"
+                                VerticalOptions="Center"
+                                Margin="0,0,12,0" />
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label FontAttributes="Bold" FontSize="16">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="{}{0:g}">
+                                            <Binding Path="Timestamp" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                                <Label FontSize="13" TextColor="Gray">
+                                    <Label.Text>
+                                        <MultiBinding StringFormat="{}{0:0.0} L &#183; {1:0.00} {2}">
+                                            <Binding Path="LitersFilled" />
+                                            <Binding Path="AmountPaid" />
+                                            <Binding Path="Currency" />
+                                        </MultiBinding>
+                                    </Label.Text>
+                                </Label>
+                                <Label
+                                    Text="{Binding StationName}"
+                                    FontSize="13"
+                                    TextColor="Gray"
+                                    IsVisible="{Binding StationName, Converter={StaticResource StringNotEmptyConverter}}" />
+                            </VerticalStackLayout>
+
+                            <Button
+                                Grid.Column="2"
+                                Text="Delete"
+                                BackgroundColor="Transparent"
+                                TextColor="Red"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FillUpListViewModel}}, Path=DeleteCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <VerticalStackLayout
+            IsVisible="{Binding IsEmpty}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            Spacing="8"
+            Padding="32">
+            <Label Text="No fill-ups yet" FontSize="18" HorizontalOptions="Center" />
+            <Label
+                Text="Tap + New Fill-Up after your next stop at the pump."
+                FontSize="14"
+                TextColor="Gray"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+    </Grid>
+
+</ContentPage>
