@@ -102,10 +102,10 @@ public sealed partial class DashboardViewModel(
     private async Task DeleteAsync(FillUp fillUp)
     {
         var confirmed = await Shell.Current.DisplayAlertAsync(
-            "Delete fill-up",
-            $"Delete the fill-up from {fillUp.Timestamp.LocalDateTime:g}? Its route segments will be removed too.",
-            "Delete",
-            "Cancel");
+            "Ștergere alimentare",
+            $"Ștergeți alimentarea din {fillUp.Timestamp.LocalDateTime:g}? Segmentele de traseu asociate vor fi șterse și ele.",
+            "Șterge",
+            "Anulează");
 
         if (!confirmed)
         {
@@ -122,7 +122,7 @@ public sealed partial class DashboardViewModel(
     {
         var now = DateTimeOffset.Now;
         var toExport = _allFillUps.Where(f => f.Timestamp.Year == now.Year && f.Timestamp.Month == now.Month).ToList();
-        return ExportAsync(toExport, $"fill-ups for {now:MMMM yyyy}");
+        return ExportAsync(toExport, $"alimentările din {now:MMMM yyyy}");
     }
 
     /// <summary>Exports every fill-up not yet confirmed sent — "since last export" without needing a separate timestamp to track.</summary>
@@ -130,7 +130,7 @@ public sealed partial class DashboardViewModel(
     private Task ExportUnsentAsync()
     {
         var toExport = _allFillUps.Where(f => !f.EmailSent).ToList();
-        return ExportAsync(toExport, "unsent fill-ups");
+        return ExportAsync(toExport, "alimentările netrimise");
     }
 
     /// <summary>
@@ -144,7 +144,7 @@ public sealed partial class DashboardViewModel(
     {
         if (fillUps.Count == 0)
         {
-            StatusMessage = $"No {description} to export.";
+            StatusMessage = $"Nu există {description} de exportat.";
             return;
         }
 
@@ -164,7 +164,7 @@ public sealed partial class DashboardViewModel(
 
             if (attachments.Count == 0)
             {
-                StatusMessage = "Nothing could be exported.";
+                StatusMessage = "Nu s-a putut exporta nimic.";
                 return;
             }
 
@@ -172,7 +172,7 @@ public sealed partial class DashboardViewModel(
             var message = new EmailMessage
             {
                 Subject = $"Foi de parcurs - {description}",
-                Body = $"Buna ziua,\n\nAtasat gasiti {attachments.Count} foi de parcurs ({description}).\n\nCu stima,\n{profile.DriverName}",
+                Body = $"Bună ziua,\n\nAtașat găsiți {attachments.Count} foi de parcurs ({description}).\n\nCu stimă,\n{profile.DriverName}",
                 To = string.IsNullOrWhiteSpace(profile.EmailRecipient) ? [] : [profile.EmailRecipient]
             };
             foreach (var attachment in attachments)
@@ -186,15 +186,15 @@ public sealed partial class DashboardViewModel(
             }
             catch (FeatureNotSupportedException)
             {
-                StatusMessage = "No email app is available on this device — the PDFs were generated but couldn't be handed off to compose.";
+                StatusMessage = "Nu există nicio aplicație de email pe acest dispozitiv — PDF-urile au fost generate, dar nu au putut fi transmise pentru trimitere.";
                 return;
             }
 
             var confirmedSent = await Shell.Current.DisplayAlertAsync(
-                "Email sent?",
-                $"Did you finish sending all {attachments.Count} attached fill-ups? (Android can't confirm this automatically.)",
-                "Yes, sent",
-                "Not yet");
+                "Email trimis?",
+                $"Ați finalizat trimiterea tuturor celor {attachments.Count} atașamente? (Android nu poate confirma automat acest lucru.)",
+                "Da, trimis",
+                "Încă nu");
 
             if (confirmedSent)
             {
@@ -203,7 +203,7 @@ public sealed partial class DashboardViewModel(
                     await fillUpRepository.SetEmailSentAsync(fillUp.Id, true);
                 }
 
-                StatusMessage = $"Marked {fillUps.Count} fill-ups as sent.";
+                StatusMessage = $"Au fost marcate {fillUps.Count} alimentări ca trimise.";
                 await LoadAsync();
             }
         }

@@ -21,7 +21,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
     private int? _id;
 
     [ObservableProperty]
-    private string _title = "New location";
+    private string _title = "Locație nouă";
 
     [ObservableProperty]
     private string _name = string.Empty;
@@ -59,7 +59,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
         {
             _id = id;
             IsExistingLocation = true;
-            Title = "Edit location";
+            Title = "Editare locație";
             _ = LoadAsync(id);
         }
     }
@@ -72,7 +72,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
             var location = await repository.GetByIdAsync(id);
             if (location is null)
             {
-                StatusMessage = "This location no longer exists.";
+                StatusMessage = "Această locație nu mai există.";
                 return;
             }
 
@@ -114,7 +114,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
             var match = results.FirstOrDefault();
             if (match is null)
             {
-                StatusMessage = "No match found for that address.";
+                StatusMessage = "Nu a fost găsită nicio adresă corespunzătoare.";
                 return;
             }
 
@@ -123,7 +123,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Address search unavailable: {ex.Message}";
+            StatusMessage = $"Căutarea adresei nu este disponibilă: {ex.Message}";
         }
         finally
         {
@@ -136,7 +136,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
     {
         if (string.IsNullOrWhiteSpace(Name))
         {
-            StatusMessage = "Name is required.";
+            StatusMessage = "Numele este obligatoriu.";
             return;
         }
 
@@ -148,7 +148,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
                 var existing = await repository.GetByIdAsync(id);
                 if (existing is null)
                 {
-                    StatusMessage = "This location no longer exists.";
+                    StatusMessage = "Această locație nu mai există.";
                     return;
                 }
 
@@ -188,7 +188,7 @@ public sealed partial class KnownLocationEditViewModel(IKnownLocationRepository 
             return;
         }
 
-        var confirmed = await Shell.Current.DisplayAlertAsync("Delete location", $"Delete \"{Name}\"?", "Delete", "Cancel");
+        var confirmed = await Shell.Current.DisplayAlertAsync("Ștergere locație", $"Ștergeți „{Name}”?", "Șterge", "Anulează");
         if (!confirmed)
         {
             return;

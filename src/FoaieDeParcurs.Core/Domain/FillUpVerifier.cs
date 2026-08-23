@@ -37,21 +37,21 @@ public static class FillUpVerifier
 
         if (segment.DistanceKm <= 0)
         {
-            yield return $"Segment \"{label}\" has no distance recorded.";
+            yield return $"Segmentul \"{label}\" nu are nicio distanță înregistrată.";
         }
 
         if (segment.StartTimestamp == default || segment.EndTimestamp == default)
         {
-            yield return $"Segment \"{label}\" is missing a start or end time.";
+            yield return $"Segmentul \"{label}\" nu are oră de plecare sau sosire.";
         }
         else if (segment.EndTimestamp <= segment.StartTimestamp)
         {
-            yield return $"Segment \"{label}\" ends before it starts — check the time.";
+            yield return $"Segmentul \"{label}\" se termină înainte să înceapă — verificați ora.";
         }
 
         if (string.IsNullOrWhiteSpace(segment.StartLocationName) || string.IsNullOrWhiteSpace(segment.EndLocationName))
         {
-            yield return "A segment is missing a start or end location name.";
+            yield return "Unui segment îi lipsește locația de plecare sau de sosire.";
         }
     }
 
@@ -64,7 +64,7 @@ public static class FillUpVerifier
             {
                 // A previous fill-up exists, so *some* driving happened to reach this one —
                 // zero segments would silently hide that trip rather than document it.
-                yield return "Gap: no route segments were recorded since the previous fill-up — add the missing segment covering this trip.";
+                yield return "Decalaj: nu a fost înregistrat niciun segment de traseu de la alimentarea anterioară — adăugați segmentul lipsă pentru această deplasare.";
             }
             else
             {
@@ -73,8 +73,8 @@ public static class FillUpVerifier
                 if (distance > options.ContinuityToleranceMeters)
                 {
                     yield return
-                        $"Gap: the previous fill-up's station doesn't match the start of \"{first.StartLocationName}\" — " +
-                        "add the missing segment covering this trip.";
+                        $"Decalaj: stația alimentării anterioare nu corespunde cu începutul \"{first.StartLocationName}\" — " +
+                        "adăugați segmentul lipsă pentru această deplasare.";
                 }
             }
         }
@@ -89,8 +89,8 @@ public static class FillUpVerifier
             if (distance > options.ContinuityToleranceMeters)
             {
                 yield return
-                    $"Gap between \"{previous.EndLocationName}\" and \"{current.StartLocationName}\" — " +
-                    "add the missing segment covering this trip.";
+                    $"Decalaj între \"{previous.EndLocationName}\" și \"{current.StartLocationName}\" — " +
+                    "adăugați segmentul lipsă pentru această deplasare.";
             }
         }
     }

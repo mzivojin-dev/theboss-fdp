@@ -5,50 +5,50 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:FoaieDeParcurs.App.ViewModels.Settings"
     x:DataType="vm:SettingsViewModel"
-    Title="Settings">
+    Title="Setări">
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="10">
 
-            <Label Text="Company &amp; driver" FontAttributes="Bold" FontSize="18" Margin="0,0,0,4" />
-            <Label Text="Company name" />
+            <Label Text="Companie și șofer" FontAttributes="Bold" FontSize="18" Margin="0,0,0,4" />
+            <Label Text="Denumire companie" />
             <Entry Text="{Binding CompanyName}" />
             <Label Text="CUI" />
             <Entry Text="{Binding Cui}" />
-            <Label Text="Driver name" />
+            <Label Text="Nume șofer" />
             <Entry Text="{Binding DriverName}" />
 
-            <Label Text="Vehicle" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
-            <Label Text="Plate number" />
+            <Label Text="Vehicul" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
+            <Label Text="Număr înmatriculare" />
             <Entry Text="{Binding VehiclePlate}" />
-            <Label Text="Make / model" />
+            <Label Text="Marcă / model" />
             <Entry Text="{Binding VehicleMakeModel}" />
-            <Label Text="Category (e.g. M1)" />
+            <Label Text="Categorie (ex. M1)" />
             <Entry Text="{Binding VehicleCategory}" />
-            <Label Text="Fuel type" />
-            <Picker ItemsSource="{Binding AvailableFuelTypes}" SelectedItem="{Binding FuelType}" />
-            <Label Text="Declared consumption norm (L/100km)" />
+            <Label Text="Tip combustibil" />
+            <Picker ItemsSource="{Binding AvailableFuelTypes}" SelectedItem="{Binding FuelType}" ItemDisplayBinding="{Binding ., Converter={StaticResource EnumDisplayNameConverter}}" />
+            <Label Text="Norma de consum declarată (L/100km)" />
             <Entry Text="{Binding FuelConsumptionNormPer100Km}" Keyboard="Numeric" />
 
-            <Label Text="Reporting" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
-            <Label Text="Cadence" />
-            <Picker ItemsSource="{Binding AvailableCadences}" SelectedItem="{Binding ReportingCadence}" />
+            <Label Text="Raportare" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
+            <Label Text="Periodicitate" />
+            <Picker ItemsSource="{Binding AvailableCadences}" SelectedItem="{Binding ReportingCadence}" ItemDisplayBinding="{Binding ., Converter={StaticResource EnumDisplayNameConverter}}" />
 
             <Label Text="Email" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
-            <Label Text="Recipient" />
+            <Label Text="Destinatar" />
             <Entry Text="{Binding EmailRecipient}" Keyboard="Email" />
-            <Label Text="Subject template" />
+            <Label Text="Șablon subiect" />
             <Entry Text="{Binding EmailSubjectTemplate}" />
-            <Label Text="Body template" />
+            <Label Text="Șablon conținut" />
             <Editor Text="{Binding EmailBodyTemplate}" HeightRequest="100" AutoSize="TextChanges" />
 
-            <Label Text="Maps" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
-            <Label Text="Google Maps SDK API key (optional — leave blank to use the offline city fallback)" FontSize="12" TextColor="Gray" />
+            <Label Text="Hărți" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
+            <Label Text="Cheie API Google Maps SDK (opțional — lăsați gol pentru lista offline de orașe)" FontSize="12" TextColor="Gray" />
             <Entry Text="{Binding GoogleMapsApiKey}" />
 
-            <Label Text="Tracking" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
+            <Label Text="Urmărire" FontAttributes="Bold" FontSize="18" Margin="0,16,0,4" />
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="Background GPS tracking" VerticalOptions="Center" />
+                <Label Text="Urmărire GPS în fundal" VerticalOptions="Center" />
                 <Switch Grid.Column="1" IsToggled="{Binding IsTracking, Mode=OneWay}" Toggled="OnTrackingToggled" />
             </Grid>
             <Label
@@ -58,7 +58,7 @@
                 IsVisible="{Binding TrackingStatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
 
             <Button
-                Text="Save"
+                Text="Salvează"
                 Margin="0,20,0,0"
                 BackgroundColor="{StaticResource Primary}"
                 TextColor="White"

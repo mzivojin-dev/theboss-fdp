@@ -11,7 +11,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
 
-            <Label Text="Tap the map to set the pin, or search an address below." FontSize="13" TextColor="Gray" />
+            <Label Text="Atinge harta pentru a plasa marcajul sau caută o adresă mai jos." FontSize="13" TextColor="Gray" />
 
             <maps:Map
                 x:Name="LocationMap"
@@ -21,29 +21,29 @@
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                 <Entry
                     Grid.Column="0"
-                    Placeholder="Search address (e.g. Piata Victoriei, Bucuresti)"
+                    Placeholder="Caută adresă (ex. Piața Victoriei, București)"
                     Text="{Binding SearchAddress}" />
-                <Button Grid.Column="1" Text="Search" Command="{Binding SearchAddressCommand}" />
+                <Button Grid.Column="1" Text="Caută" Command="{Binding SearchAddressCommand}" />
             </Grid>
 
-            <Label Text="Name" FontAttributes="Bold" />
-            <Entry Placeholder="e.g. Depot X" Text="{Binding Name}" />
+            <Label Text="Nume" FontAttributes="Bold" />
+            <Entry Placeholder="ex. Depozit X" Text="{Binding Name}" />
 
-            <Label Text="Type" FontAttributes="Bold" />
-            <Picker ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding Type}" />
+            <Label Text="Tip" FontAttributes="Bold" />
+            <Picker ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding Type}" ItemDisplayBinding="{Binding ., Converter={StaticResource EnumDisplayNameConverter}}" />
 
-            <Label Text="Matching radius (meters)" FontAttributes="Bold" />
+            <Label Text="Rază de asociere (metri)" FontAttributes="Bold" />
             <Entry Text="{Binding RadiusMeters}" Keyboard="Numeric" />
 
             <Label Text="{Binding StatusMessage}" TextColor="Red" IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,16,0,0">
-                <Button Grid.Column="0" Text="Cancel" Command="{Binding CancelCommand}" />
-                <Button Grid.Column="1" Text="Save" Command="{Binding SaveCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" />
+                <Button Grid.Column="0" Text="Anulează" Command="{Binding CancelCommand}" />
+                <Button Grid.Column="1" Text="Salvează" Command="{Binding SaveCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" />
             </Grid>
 
             <Button
-                Text="Delete"
+                Text="Șterge"
                 TextColor="Red"
                 BackgroundColor="Transparent"
                 IsVisible="{Binding IsExistingLocation}"

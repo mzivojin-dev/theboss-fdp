@@ -25,7 +25,7 @@ public sealed class VehicleProfile
     public string EmailRecipient { get; set; } = string.Empty;
     public string EmailSubjectTemplate { get; set; } = "Foaie de Parcurs - {PeriodStart} - {PeriodEnd}";
     public string EmailBodyTemplate { get; set; } =
-        "Buna ziua,\n\nAtasat gasiti foaia de parcurs pentru perioada {PeriodStart} - {PeriodEnd}.\n\nCu stima,\n{DriverName}";
+        "Bună ziua,\n\nAtașat găsiți foaia de parcurs pentru perioada {PeriodStart} - {PeriodEnd}.\n\nCu stimă,\n{DriverName}";
 
     public ReportingCadence ReportingCadence { get; set; } = ReportingCadence.PerFillUp;
 }

@@ -11,30 +11,30 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="10">
 
-            <Label Text="Station" FontAttributes="Bold" FontSize="18" />
-            <Label Text="Known location (optional)" />
+            <Label Text="Stație" FontAttributes="Bold" FontSize="18" />
+            <Label Text="Locație cunoscută (opțional)" />
             <Picker
                 ItemsSource="{Binding AvailableKnownLocations}"
                 SelectedItem="{Binding SelectedKnownLocation}"
                 ItemDisplayBinding="{Binding Name}"
                 IsEnabled="{Binding CanEdit}" />
-            <Label Text="Station name" />
+            <Label Text="Denumire stație" />
             <Entry Text="{Binding StationName}" IsEnabled="{Binding CanEdit}" />
 
-            <Label Text="Fuel" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
-            <Label Text="Liters filled" />
+            <Label Text="Combustibil" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
+            <Label Text="Litri alimentați" />
             <Entry Text="{Binding LitersFilled}" Keyboard="Numeric" IsEnabled="{Binding CanEdit}" />
-            <Label Text="Amount paid" />
+            <Label Text="Sumă plătită" />
             <Entry Text="{Binding AmountPaid}" Keyboard="Numeric" IsEnabled="{Binding CanEdit}" />
-            <Label Text="Currency" />
+            <Label Text="Monedă" />
             <Entry Text="{Binding Currency}" IsEnabled="{Binding CanEdit}" />
-            <Label Text="Odometer reading (optional, km)" />
+            <Label Text="Kilometraj bord (opțional, km)" />
             <Entry Text="{Binding OdometerReading}" Keyboard="Numeric" IsEnabled="{Binding CanEdit}" />
 
-            <Label Text="Receipt photo" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
+            <Label Text="Poză bon fiscal" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8" IsVisible="{Binding CanEdit}">
-                <Button Grid.Column="0" Text="Take photo" Command="{Binding TakePhotoCommand}" />
-                <Button Grid.Column="1" Text="Choose from gallery" Command="{Binding PickPhotoCommand}" />
+                <Button Grid.Column="0" Text="Fă o poză" Command="{Binding TakePhotoCommand}" />
+                <Button Grid.Column="1" Text="Alege din galerie" Command="{Binding PickPhotoCommand}" />
             </Grid>
             <Image
                 Source="{Binding ReceiptPhotoPath}"
@@ -42,7 +42,7 @@
                 Aspect="AspectFit"
                 IsVisible="{Binding ReceiptPhotoPath, Converter={StaticResource StringNotEmptyConverter}}" />
 
-            <Label Text="Route segments" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
+            <Label Text="Segmente de traseu" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
             <!-- IsEnabled cascades to every descendant, including the CollectionView's item
                  templates — simpler and more reliable than a RelativeSource lookup through
                  virtualized item containers. -->
@@ -57,7 +57,7 @@
                                     <Entry Grid.Column="2" Text="{Binding EndLocationName}" />
                                 </Grid>
                                 <Grid ColumnDefinitions="Auto,*">
-                                    <Label Grid.Column="0" Text="Distance (km):" VerticalOptions="Center" />
+                                    <Label Grid.Column="0" Text="Distanță (km):" VerticalOptions="Center" />
                                     <Entry Grid.Column="1" Text="{Binding DistanceKm}" Keyboard="Numeric" />
                                 </Grid>
                                 <Label FontSize="12" TextColor="Gray">
@@ -74,12 +74,12 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Label Text="Notes (optional)" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
+            <Label Text="Observații (opțional)" FontAttributes="Bold" FontSize="18" Margin="0,16,0,0" />
             <Editor Text="{Binding Notes}" HeightRequest="80" AutoSize="TextChanges" IsEnabled="{Binding CanEdit}" />
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,20,0,0" IsVisible="{Binding CanEdit}">
-                <Button Grid.Column="0" Text="Cancel" Command="{Binding CancelCommand}" />
-                <Button Grid.Column="1" Text="Save" BackgroundColor="{StaticResource Primary}" TextColor="White" Command="{Binding SaveCommand}" />
+                <Button Grid.Column="0" Text="Anulează" Command="{Binding CancelCommand}" />
+                <Button Grid.Column="1" Text="Salvează" BackgroundColor="{StaticResource Primary}" TextColor="White" Command="{Binding SaveCommand}" />
             </Grid>
 
             <Label
@@ -89,7 +89,7 @@
                 IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
 
             <VerticalStackLayout IsVisible="{Binding VerificationIssues.Count, Converter={StaticResource CountGreaterThanZeroConverter}}" Spacing="4" Margin="0,8,0,0">
-                <Label Text="Verification found issues:" FontAttributes="Bold" TextColor="Red" />
+                <Label Text="Verificarea a găsit probleme:" FontAttributes="Bold" TextColor="Red" />
                 <CollectionView ItemsSource="{Binding VerificationIssues}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="x:String">
@@ -103,12 +103,12 @@
             <VerticalStackLayout IsVisible="{Binding CanEdit, Converter={StaticResource InvertedBoolConverter}}" Spacing="8" Margin="0,20,0,0">
                 <Label Text="Foaie de Parcurs" FontAttributes="Bold" FontSize="18" />
 
-                <Label Text="{Binding IsVerified, Converter={StaticResource VerifiedStatusIconConverter}, StringFormat='{0} Verified'}" />
-                <Label Text="✉️ Email sent" IsVisible="{Binding EmailSent}" TextColor="Green" />
+                <Label Text="{Binding IsVerified, Converter={StaticResource VerifiedStatusIconConverter}, StringFormat='{0} Verificat'}" />
+                <Label Text="✉️ Email trimis" IsVisible="{Binding EmailSent}" TextColor="Green" />
 
-                <Button Text="Re-generate PDF" Command="{Binding GeneratePdfCommand}" />
+                <Button Text="Regenerează PDF" Command="{Binding GeneratePdfCommand}" />
                 <Button
-                    Text="Verify &amp; Email"
+                    Text="Verifică și trimite"
                     BackgroundColor="{StaticResource Primary}"
                     TextColor="White"
                     Command="{Binding VerifyAndEmailCommand}" />

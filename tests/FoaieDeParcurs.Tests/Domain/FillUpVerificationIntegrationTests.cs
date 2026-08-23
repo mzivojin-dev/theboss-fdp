@@ -125,6 +125,6 @@ public sealed class FillUpVerificationIntegrationTests : IDisposable
         var result = FillUpVerifier.Verify(reloadedFillUp!, reloadedSegments, previousFillUp);
 
         Assert.False(result.IsVerified);
-        Assert.Contains(result.Issues, i => i.Contains("gap", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Issues, i => i.Contains("Decalaj", StringComparison.OrdinalIgnoreCase));
     }
 }

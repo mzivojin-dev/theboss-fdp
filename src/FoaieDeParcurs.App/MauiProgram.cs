@@ -1,3 +1,4 @@
+using System.Globalization;
 using FoaieDeParcurs.App.Platforms.Android;
 using FoaieDeParcurs.App.Services;
 using FoaieDeParcurs.App.ViewModels.Dashboard;
@@ -22,6 +23,13 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
 	{
+		// Single-user app for a Romanian company driver (see spec) — the UI, dates, and number
+		// formatting are Romanian throughout, not switchable. Set before anything else runs so
+		// every subsequently-created thread (including the UI thread) inherits it.
+		var romanianCulture = new CultureInfo("ro-RO");
+		CultureInfo.DefaultThreadCurrentCulture = romanianCulture;
+		CultureInfo.DefaultThreadCurrentUICulture = romanianCulture;
+
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()

@@ -15,6 +15,7 @@
             <converters:VerifiedStatusIconConverter x:Key="VerifiedStatusIconConverter" />
             <converters:CountGreaterThanZeroConverter x:Key="CountGreaterThanZeroConverter" />
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <converters:EnumDisplayNameConverter x:Key="EnumDisplayNameConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

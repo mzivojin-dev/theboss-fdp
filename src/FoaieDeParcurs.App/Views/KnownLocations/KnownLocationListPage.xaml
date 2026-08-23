@@ -6,10 +6,10 @@
     xmlns:vm="clr-namespace:FoaieDeParcurs.App.ViewModels.KnownLocations"
     xmlns:entities="clr-namespace:FoaieDeParcurs.Core.Entities;assembly=FoaieDeParcurs.Core"
     x:DataType="vm:KnownLocationListViewModel"
-    Title="Known Locations">
+    Title="Locații cunoscute">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Add" Command="{Binding AddCommand}" />
+        <ToolbarItem Text="Adaugă" Command="{Binding AddCommand}" />
     </ContentPage.ToolbarItems>
 
     <Grid>
@@ -26,10 +26,10 @@
 
                             <VerticalStackLayout Grid.Column="0" Spacing="2">
                                 <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="16" />
-                                <Label Text="{Binding Type}" FontSize="13" TextColor="Gray" />
+                                <Label Text="{Binding Type, Converter={StaticResource EnumDisplayNameConverter}}" FontSize="13" TextColor="Gray" />
                                 <Label FontSize="12" TextColor="Gray">
                                     <Label.Text>
-                                        <MultiBinding StringFormat="Radius: {0:0} m">
+                                        <MultiBinding StringFormat="Rază: {0:0} m">
                                             <Binding Path="RadiusMeters" />
                                         </MultiBinding>
                                     </Label.Text>
@@ -38,7 +38,7 @@
 
                             <Button
                                 Grid.Column="2"
-                                Text="Delete"
+                                Text="Șterge"
                                 BackgroundColor="Transparent"
                                 TextColor="Red"
                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:KnownLocationListViewModel}}, Path=DeleteCommand}"
@@ -55,9 +55,9 @@
             HorizontalOptions="Center"
             Spacing="8"
             Padding="32">
-            <Label Text="No known locations yet" FontSize="18" HorizontalOptions="Center" />
+            <Label Text="Nicio locație cunoscută încă" FontSize="18" HorizontalOptions="Center" />
             <Label
-                Text="Add Work, Home, or a favorite gas station so route segments snap to them automatically."
+                Text="Adaugă Serviciu, Acasă sau o benzinărie preferată, pentru ca segmentele de traseu să se asocieze automat cu acestea."
                 FontSize="14"
                 TextColor="Gray"
                 HorizontalOptions="Center"

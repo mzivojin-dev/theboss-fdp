@@ -122,7 +122,7 @@ public sealed partial class SettingsViewModel(IVehicleProfileRepository reposito
                 ReportingCadence = ReportingCadence
             });
 
-            StatusMessage = "Saved.";
+            StatusMessage = "Salvat.";
         }
         finally
         {
@@ -137,19 +137,19 @@ public sealed partial class SettingsViewModel(IVehicleProfileRepository reposito
         {
             trackingService.Stop();
             IsTracking = false;
-            TrackingStatusMessage = "Tracking stopped.";
+            TrackingStatusMessage = "Urmărirea a fost oprită.";
             return;
         }
 
         var granted = await trackingService.RequestPermissionsAsync();
         if (!granted)
         {
-            TrackingStatusMessage = "Location and notification permissions are required to track driving.";
+            TrackingStatusMessage = "Sunt necesare permisiuni de locație și notificări pentru a urmări traseul.";
             return;
         }
 
         trackingService.Start();
         IsTracking = true;
-        TrackingStatusMessage = "Tracking started — a persistent notification shows while it's active.";
+        TrackingStatusMessage = "Urmărirea a pornit — o notificare persistentă este afișată cât timp este activă.";
     }
 }

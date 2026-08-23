@@ -34,7 +34,7 @@ public sealed partial class FillUpCaptureViewModel(
     private List<KnownLocation> _knownLocations = [];
 
     [ObservableProperty]
-    private string _title = "New Fill-Up";
+    private string _title = "Alimentare nouă";
 
     [ObservableProperty]
     private bool _canEdit = true;
@@ -93,7 +93,7 @@ public sealed partial class FillUpCaptureViewModel(
         if (query.TryGetValue(FillUpIdQueryKey, out var value) && value is int id)
         {
             _existingId = id;
-            Title = "Fill-Up Details";
+            Title = "Detalii alimentare";
             CanEdit = false;
         }
     }
@@ -132,7 +132,7 @@ public sealed partial class FillUpCaptureViewModel(
         var fillUp = await fillUpRepository.GetByIdAsync(id);
         if (fillUp is null)
         {
-            StatusMessage = "This fill-up no longer exists.";
+            StatusMessage = "Această alimentare nu mai există.";
             return;
         }
 
@@ -180,8 +180,8 @@ public sealed partial class FillUpCaptureViewModel(
         if (Segments.Count == 0)
         {
             StatusMessage = points.Count == 0
-                ? "No GPS trail recorded since the last fill-up — start tracking from Settings before you drive."
-                : "No distinct route segments were detected in the recorded trail.";
+                ? "Niciun traseu GPS înregistrat de la ultima alimentare — porniți urmărirea din Setări înainte de a conduce."
+                : "Nu au fost detectate segmente de traseu distincte în traseul înregistrat.";
         }
     }
 
@@ -212,7 +212,7 @@ public sealed partial class FillUpCaptureViewModel(
         }
         catch (Exception ex) when (ex is FeatureNotEnabledException or FeatureNotSupportedException or PermissionException)
         {
-            StatusMessage = "Couldn't detect your location automatically — enter the station manually.";
+            StatusMessage = "Nu s-a putut detecta automat locația — introduceți stația manual.";
         }
     }
 
@@ -276,7 +276,7 @@ public sealed partial class FillUpCaptureViewModel(
     {
         if (!MediaPicker.Default.IsCaptureSupported)
         {
-            StatusMessage = "Camera capture isn't supported on this device.";
+            StatusMessage = "Fotografierea nu este disponibilă pe acest dispozitiv.";
             return;
         }
 
@@ -322,7 +322,7 @@ public sealed partial class FillUpCaptureViewModel(
     {
         if (LitersFilled <= 0)
         {
-            StatusMessage = "Liters filled must be greater than zero.";
+            StatusMessage = "Litrii alimentați trebuie să fie mai mari decât zero.";
             return;
         }
 
@@ -388,7 +388,7 @@ public sealed partial class FillUpCaptureViewModel(
         if (reloadedFillUp is null || reloadedSegments.Count != Segments.Count)
         {
             IsVerified = false;
-            VerificationIssues.Add("Could not confirm the save against the database — please try again.");
+            VerificationIssues.Add("Nu s-a putut confirma salvarea în baza de date — încercați din nou.");
             return;
         }
 
@@ -407,7 +407,7 @@ public sealed partial class FillUpCaptureViewModel(
             VerificationIssues.Add(issue);
         }
 
-        StatusMessage = "Saved, but verification found issues — fix the route segments below and save again.";
+        StatusMessage = "Salvat, dar verificarea a găsit probleme — corectați segmentele de traseu mai jos și salvați din nou.";
     }
 
     [RelayCommand]
@@ -427,7 +427,7 @@ public sealed partial class FillUpCaptureViewModel(
             var path = await documentService.BuildPdfAsync(_savedFillUpId!.Value);
             if (path is null)
             {
-                StatusMessage = "This fill-up no longer exists.";
+                StatusMessage = "Această alimentare nu mai există.";
                 return;
             }
 
@@ -461,7 +461,7 @@ public sealed partial class FillUpCaptureViewModel(
 
             if (reloadedFillUp is null)
             {
-                StatusMessage = "This fill-up no longer exists.";
+                StatusMessage = "Această alimentare nu mai există.";
                 return;
             }
 
@@ -476,14 +476,14 @@ public sealed partial class FillUpCaptureViewModel(
                     VerificationIssues.Add(issue);
                 }
 
-                StatusMessage = "Verification found issues — fix the route segments before emailing.";
+                StatusMessage = "Verificarea a găsit probleme — corectați segmentele de traseu înainte de a trimite email.";
                 return;
             }
 
             var path = await documentService.BuildPdfAsync(id);
             if (path is null)
             {
-                StatusMessage = "This fill-up no longer exists.";
+                StatusMessage = "Această alimentare nu mai există.";
                 return;
             }
 
@@ -508,15 +508,15 @@ public sealed partial class FillUpCaptureViewModel(
             }
             catch (FeatureNotSupportedException)
             {
-                StatusMessage = "No email app is available on this device — the PDF was generated but couldn't be handed off to compose.";
+                StatusMessage = "Nu există nicio aplicație de email pe acest dispozitiv — PDF-ul a fost generat, dar nu a putut fi transmis pentru trimitere.";
                 return;
             }
 
             var confirmedSent = await Shell.Current.DisplayAlertAsync(
-                "Email sent?",
-                "Did you finish sending the email? (Android can't confirm this automatically.)",
-                "Yes, sent",
-                "Not yet");
+                "Email trimis?",
+                "Ați finalizat trimiterea email-ului? (Android nu poate confirma automat acest lucru.)",
+                "Da, trimis",
+                "Încă nu");
 
             await fillUpRepository.SetEmailSentAsync(id, confirmedSent);
             EmailSent = confirmedSent;

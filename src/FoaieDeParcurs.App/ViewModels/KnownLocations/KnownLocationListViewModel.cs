@@ -50,10 +50,10 @@ public sealed partial class KnownLocationListViewModel(IKnownLocationRepository 
     private async Task DeleteAsync(KnownLocation location)
     {
         var confirmed = await Shell.Current.DisplayAlertAsync(
-            "Delete location",
-            $"Delete \"{location.Name}\"?",
-            "Delete",
-            "Cancel");
+            "Ștergere locație",
+            $"Ștergeți „{location.Name}”?",
+            "Șterge",
+            "Anulează");
 
         if (!confirmed)
         {

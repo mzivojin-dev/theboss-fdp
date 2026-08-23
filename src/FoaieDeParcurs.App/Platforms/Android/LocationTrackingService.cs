@@ -128,16 +128,16 @@ public sealed class LocationTrackingService : Service
         var manager = (NotificationManager)GetSystemService(NotificationService)!;
         if (manager.GetNotificationChannel(ChannelId) is null)
         {
-            var channel = new NotificationChannel(ChannelId, "Location tracking", NotificationImportance.Low)
+            var channel = new NotificationChannel(ChannelId, "Urmărire locație", NotificationImportance.Low)
             {
-                Description = "Shown while Foaie de Parcurs is recording your route."
+                Description = "Afișată cât timp Foaie de Parcurs înregistrează traseul."
             };
             manager.CreateNotificationChannel(channel);
         }
 
         return new NotificationCompat.Builder(this, ChannelId)
             .SetContentTitle("Foaie de Parcurs")
-            .SetContentText("Recording your route for the next fill-up log")
+            .SetContentText("Se înregistrează traseul pentru următoarea alimentare")
             .SetSmallIcon(Resource.Mipmap.appicon)
             .SetOngoing(true)
             .SetPriority(NotificationCompat.PriorityLow)

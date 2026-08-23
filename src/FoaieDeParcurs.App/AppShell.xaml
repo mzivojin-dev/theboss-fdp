@@ -10,17 +10,17 @@
 
     <TabBar>
         <ShellContent
-            Title="Home"
+            Title="Acasă"
             ContentTemplate="{DataTemplate dashboard:DashboardPage}"
             Route="FillUps" />
 
         <ShellContent
-            Title="Locations"
+            Title="Locații"
             ContentTemplate="{DataTemplate locations:KnownLocationListPage}"
             Route="KnownLocations" />
 
         <ShellContent
-            Title="Settings"
+            Title="Setări"
             ContentTemplate="{DataTemplate settings:SettingsPage}"
             Route="Settings" />
     </TabBar>

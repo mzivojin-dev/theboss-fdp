@@ -9,7 +9,7 @@
     Title="Foaie de Parcurs">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="+ New Fill-Up" Command="{Binding AddCommand}" />
+        <ToolbarItem Text="+ Alimentare nouă" Command="{Binding AddCommand}" />
     </ContentPage.ToolbarItems>
 
     <Grid>
@@ -27,7 +27,7 @@
                             StrokeShape="RoundRectangle 12">
                             <VerticalStackLayout Padding="12" Spacing="2">
                                 <Label Text="{Binding MonthFillUpCount}" TextColor="White" FontSize="24" FontAttributes="Bold" />
-                                <Label Text="fill-ups" TextColor="White" FontSize="12" Opacity="0.85" />
+                                <Label Text="alimentări" TextColor="White" FontSize="12" Opacity="0.85" />
                             </VerticalStackLayout>
                         </Border>
 
@@ -44,7 +44,7 @@
                                         </MultiBinding>
                                     </Label.Text>
                                 </Label>
-                                <Label Text="km driven" FontSize="12" TextColor="{StaticResource PrimaryDarkText}" Opacity="0.85" />
+                                <Label Text="km parcurși" FontSize="12" TextColor="{StaticResource PrimaryDarkText}" Opacity="0.85" />
                             </VerticalStackLayout>
                         </Border>
 
@@ -62,7 +62,7 @@
                                         </MultiBinding>
                                     </Label.Text>
                                 </Label>
-                                <Label Text="spent" FontSize="12" TextColor="Gray" />
+                                <Label Text="cheltuit" FontSize="12" TextColor="Gray" />
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
@@ -74,13 +74,13 @@
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                                 <Button
                                     Grid.Column="0"
-                                    Text="This month"
+                                    Text="Luna aceasta"
                                     BackgroundColor="{StaticResource Primary}"
                                     TextColor="White"
                                     Command="{Binding ExportThisMonthCommand}" />
                                 <Button Grid.Column="1" Command="{Binding ExportUnsentCommand}">
                                     <Button.Text>
-                                        <MultiBinding StringFormat="{}Unsent ({0})">
+                                        <MultiBinding StringFormat="{}Netrimise ({0})">
                                             <Binding Path="UnsentCount" />
                                         </MultiBinding>
                                     </Button.Text>
@@ -96,7 +96,7 @@
                     </Border>
 
                     <!--  Recent fill-ups  -->
-                    <Label Text="Recent fill-ups" FontAttributes="Bold" FontSize="16" Margin="0,8,0,0" />
+                    <Label Text="Alimentări recente" FontAttributes="Bold" FontSize="16" Margin="0,8,0,0" />
                     <CollectionView ItemsSource="{Binding RecentFillUps}" SelectionMode="None">
                         <CollectionView.ItemsLayout>
                             <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
@@ -107,7 +107,7 @@
                                     <SwipeView.RightItems>
                                         <SwipeItems>
                                             <SwipeItem
-                                                Text="Delete"
+                                                Text="Șterge"
                                                 BackgroundColor="Red"
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DashboardViewModel}}, Path=DeleteCommand}"
                                                 CommandParameter="{Binding .}" />
@@ -169,9 +169,9 @@
             HorizontalOptions="Center"
             Spacing="8"
             Padding="32">
-            <Label Text="No fill-ups yet" FontSize="18" HorizontalOptions="Center" />
+            <Label Text="Nicio alimentare încă" FontSize="18" HorizontalOptions="Center" />
             <Label
-                Text="Tap + New Fill-Up after your next stop at the pump."
+                Text="Apasă + Alimentare nouă după următoarea oprire la pompă."
                 FontSize="14"
                 TextColor="Gray"
                 HorizontalOptions="Center"

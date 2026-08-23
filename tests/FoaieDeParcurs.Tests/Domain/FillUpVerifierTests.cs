@@ -73,7 +73,7 @@ public sealed class FillUpVerifierTests
         var result = FillUpVerifier.Verify(fillUp, [segment], previousFillUp: null);
 
         Assert.False(result.IsVerified);
-        Assert.Contains(result.Issues, i => i.Contains("distance", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Issues, i => i.Contains("distanță", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public sealed class FillUpVerifierTests
         var result = FillUpVerifier.Verify(fillUp, [segment], previousFillUp: null);
 
         Assert.False(result.IsVerified);
-        Assert.Contains(result.Issues, i => i.Contains("time", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Issues, i => i.Contains("ora", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public sealed class FillUpVerifierTests
         var result = FillUpVerifier.Verify(fillUp, [], previousFillUp);
 
         Assert.False(result.IsVerified);
-        Assert.Contains(result.Issues, i => i.Contains("gap", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Issues, i => i.Contains("Decalaj", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -119,7 +119,7 @@ public sealed class FillUpVerifierTests
         var result = FillUpVerifier.Verify(fillUp, segments, previousFillUp: null);
 
         Assert.False(result.IsVerified);
-        Assert.Contains(result.Issues, i => i.Contains("gap", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Issues, i => i.Contains("Decalaj", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public sealed class FillUpVerifierTests
         var result = FillUpVerifier.Verify(fillUp, segments, previousFillUp);
 
         Assert.False(result.IsVerified);
-        Assert.Contains(result.Issues, i => i.Contains("gap", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Issues, i => i.Contains("Decalaj", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
