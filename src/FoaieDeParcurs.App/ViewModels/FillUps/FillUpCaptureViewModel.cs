@@ -24,6 +24,8 @@ public sealed partial class FillUpCaptureViewModel(
     public const string FillUpIdQueryKey = "fillUpId";
 
     private int? _existingId;
+    private int? _savedFillUpId;
+    private FillUp? _previousFillUp;
     private List<KnownLocation> _knownLocations = [];
 
     [ObservableProperty]
@@ -68,8 +70,12 @@ public sealed partial class FillUpCaptureViewModel(
     [ObservableProperty]
     private string? _statusMessage;
 
+    [ObservableProperty]
+    private bool _isVerified;
+
     public ObservableCollection<KnownLocation> AvailableKnownLocations { get; } = [];
     public ObservableCollection<RouteSegment> Segments { get; } = [];
+    public ObservableCollection<string> VerificationIssues { get; } = [];
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
@@ -145,6 +151,7 @@ public sealed partial class FillUpCaptureViewModel(
         await DetectCurrentLocationAsync();
 
         var previousFillUp = await fillUpRepository.GetMostRecentAsync();
+        _previousFillUp = previousFillUp;
         var since = previousFillUp?.Timestamp ?? DateTimeOffset.MinValue;
         var points = await gpsRawPointRepository.GetSinceAsync(since);
 
@@ -289,6 +296,12 @@ public sealed partial class FillUpCaptureViewModel(
         return destinationPath;
     }
 
+    /// <summary>
+    /// Saves, then runs the verification requirement (spec: never silently trust the write).
+    /// The first save is an insert; if verification fails, the driver can edit the segments
+    /// and save again — that re-save updates the same fill-up rather than duplicating it.
+    /// Only when verification passes does the app navigate away and mark it verified.
+    /// </summary>
     [RelayCommand]
     private async Task SaveAsync()
     {
@@ -299,11 +312,13 @@ public sealed partial class FillUpCaptureViewModel(
         }
 
         IsBusy = true;
+        StatusMessage = null;
         try
         {
             var now = DateTimeOffset.Now;
             var fillUp = new FillUp
             {
+                Id = _savedFillUpId ?? 0,
                 Timestamp = now,
                 StationLocationId = SelectedKnownLocation?.Id,
                 StationName = StationName,
@@ -318,17 +333,66 @@ public sealed partial class FillUpCaptureViewModel(
                 CreatedAt = DateTimeOffset.UtcNow
             };
 
-            await fillUpRepository.AddWithSegmentsAsync(fillUp, Segments.ToList());
+            var segments = Segments.ToList();
 
-            // The trail is now captured in the saved segments' simplified polylines — purge it.
-            await gpsRawPointRepository.PurgeUpToAsync(now);
+            if (_savedFillUpId is int existingSavedId)
+            {
+                fillUp.Id = existingSavedId;
+                await fillUpRepository.UpdateWithSegmentsAsync(fillUp, segments);
+            }
+            else
+            {
+                var saved = await fillUpRepository.AddWithSegmentsAsync(fillUp, segments);
+                _savedFillUpId = saved.Id;
 
-            await Shell.Current.GoToAsync("..");
+                // The trail is now captured in the saved segments' simplified polylines — purge it.
+                await gpsRawPointRepository.PurgeUpToAsync(now);
+            }
+
+            await VerifyAndReportAsync();
         }
         finally
         {
             IsBusy = false;
         }
+    }
+
+    /// <summary>
+    /// Re-reads the just-saved fill-up and its segments back from SQLite — not just trusting
+    /// the write didn't throw — then runs <see cref="FillUpVerifier"/> against real persisted
+    /// data. Only sets IsVerified true and navigates away when every check passes.
+    /// </summary>
+    private async Task VerifyAndReportAsync()
+    {
+        var id = _savedFillUpId!.Value;
+        var reloadedFillUp = await fillUpRepository.GetByIdAsync(id);
+        var reloadedSegments = await routeSegmentRepository.GetForFillUpAsync(id);
+
+        VerificationIssues.Clear();
+
+        if (reloadedFillUp is null || reloadedSegments.Count != Segments.Count)
+        {
+            IsVerified = false;
+            VerificationIssues.Add("Could not confirm the save against the database — please try again.");
+            return;
+        }
+
+        var result = FillUpVerifier.Verify(reloadedFillUp, reloadedSegments, _previousFillUp);
+        await fillUpRepository.SetVerifiedAsync(id, result.IsVerified);
+        IsVerified = result.IsVerified;
+
+        if (result.IsVerified)
+        {
+            await Shell.Current.GoToAsync("..");
+            return;
+        }
+
+        foreach (var issue in result.Issues)
+        {
+            VerificationIssues.Add(issue);
+        }
+
+        StatusMessage = "Saved, but verification found issues — fix the route segments below and save again.";
     }
 
     [RelayCommand]

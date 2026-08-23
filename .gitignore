@@ -27,3 +27,6 @@ Thumbs.db
 
 # App-local scratch (spec/ticket drafting)
 .spec-draft.md
+
+# Claude Code harness-local state (not project source)
+.claude/

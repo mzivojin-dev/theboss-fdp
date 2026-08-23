@@ -88,6 +88,17 @@
                 HorizontalTextAlignment="Center"
                 IsVisible="{Binding StatusMessage, Converter={StaticResource StringNotEmptyConverter}}" />
 
+            <VerticalStackLayout IsVisible="{Binding VerificationIssues.Count, Converter={StaticResource CountGreaterThanZeroConverter}}" Spacing="4" Margin="0,8,0,0">
+                <Label Text="Verification found issues:" FontAttributes="Bold" TextColor="Red" />
+                <CollectionView ItemsSource="{Binding VerificationIssues}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Label Text="{Binding .}" TextColor="Red" FontSize="13" Margin="0,2" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+
             <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
 
         </VerticalStackLayout>

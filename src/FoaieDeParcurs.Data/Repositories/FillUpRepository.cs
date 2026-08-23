@@ -33,6 +33,29 @@ public sealed class FillUpRepository(AppDbContext db) : IFillUpRepository
         return fillUp;
     }
 
+    public async Task UpdateWithSegmentsAsync(FillUp fillUp, IReadOnlyList<RouteSegment> segments)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync();
+
+        db.FillUps.Update(fillUp);
+        await db.SaveChangesAsync();
+
+        await db.RouteSegments.Where(s => s.EndFillUpId == fillUp.Id).ExecuteDeleteAsync();
+        foreach (var segment in segments)
+        {
+            segment.Id = 0;
+            segment.EndFillUpId = fillUp.Id;
+            db.RouteSegments.Add(segment);
+        }
+        await db.SaveChangesAsync();
+
+        await transaction.CommitAsync();
+    }
+
+    public async Task SetVerifiedAsync(int id, bool isVerified) =>
+        await db.FillUps.Where(f => f.Id == id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(f => f.IsVerified, isVerified));
+
     public async Task DeleteAsync(int id)
     {
         await using var transaction = await db.Database.BeginTransactionAsync();

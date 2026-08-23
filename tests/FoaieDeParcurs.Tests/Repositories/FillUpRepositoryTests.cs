@@ -136,6 +136,46 @@ public sealed class FillUpRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task SetVerifiedAsync_UpdatesOnlyTheVerifiedFlag()
+    {
+        var repository = CreateRepository();
+        var saved = await repository.AddWithSegmentsAsync(
+            new FillUp { Timestamp = DateTimeOffset.UtcNow, LitersFilled = 40, AmountPaid = 300, CreatedAt = DateTimeOffset.UtcNow },
+            []);
+        Assert.False(saved.IsVerified);
+
+        var updateRepository = CreateRepository();
+        await updateRepository.SetVerifiedAsync(saved.Id, true);
+
+        var readRepository = CreateRepository();
+        var reloaded = await readRepository.GetByIdAsync(saved.Id);
+        Assert.True(reloaded!.IsVerified);
+    }
+
+    [Fact]
+    public async Task UpdateWithSegmentsAsync_ReplacesTheFieldsAndTheFullSegmentSet()
+    {
+        var repository = CreateRepository();
+        var saved = await repository.AddWithSegmentsAsync(
+            new FillUp { Timestamp = DateTimeOffset.UtcNow, LitersFilled = 40, AmountPaid = 300, CreatedAt = DateTimeOffset.UtcNow },
+            [Segment("Depot X", "Somewhere Wrong")]);
+
+        var updateRepository = CreateRepository();
+        var toUpdate = await updateRepository.GetByIdAsync(saved.Id);
+        toUpdate!.LitersFilled = 45;
+        await updateRepository.UpdateWithSegmentsAsync(toUpdate, [Segment("Depot X", "Cluj-Napoca")]);
+
+        var readRepository = CreateRepository();
+        var reloadedFillUp = await readRepository.GetByIdAsync(saved.Id);
+        Assert.Equal(45, reloadedFillUp!.LitersFilled);
+
+        await using var db = AppDbContextFactory.Create(_dbPath);
+        var segments = db.RouteSegments.Where(s => s.EndFillUpId == saved.Id).ToList();
+        var segment = Assert.Single(segments);
+        Assert.Equal("Cluj-Napoca", segment.EndLocationName);
+    }
+
+    [Fact]
     public async Task DeleteAsync_OrphansRatherThanDeletes_SegmentsThatStartAtTheDeletedFillUp()
     {
         var repository = CreateRepository();

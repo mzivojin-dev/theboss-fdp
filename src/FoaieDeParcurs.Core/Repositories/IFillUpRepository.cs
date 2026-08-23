@@ -20,6 +20,16 @@ public interface IFillUpRepository
     Task<FillUp> AddWithSegmentsAsync(FillUp fillUp, IReadOnlyList<RouteSegment> segments);
 
     /// <summary>
+    /// Replaces an already-saved fill-up's fields and its full set of route segments — used
+    /// when the driver fixes a gap that verification flagged (see <c>FillUpVerifier</c>) and
+    /// re-saves rather than creating a duplicate entry. Also one transaction.
+    /// </summary>
+    Task UpdateWithSegmentsAsync(FillUp fillUp, IReadOnlyList<RouteSegment> segments);
+
+    /// <summary>Sets the fill-up's verified flag — the only place <see cref="FillUp.IsVerified"/> is written.</summary>
+    Task SetVerifiedAsync(int id, bool isVerified);
+
+    /// <summary>
     /// Deletes the fill-up and the route segments that end at it (its trip). Segments that
     /// start at it (leading to the next fill-up) are kept but orphaned (StartFillUpId set to
     /// null) rather than deleted, since they still document real driving.

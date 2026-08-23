@@ -13,6 +13,7 @@
 
             <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
             <converters:VerifiedStatusIconConverter x:Key="VerifiedStatusIconConverter" />
+            <converters:CountGreaterThanZeroConverter x:Key="CountGreaterThanZeroConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
